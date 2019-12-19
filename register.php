@@ -1,0 +1,178 @@
+<?php
+
+  //initiate variables used in register form
+  $types = array(
+    array("summer", "summer deals"),
+    array("fall", "after season deals"),
+    array("winter", "winter deals"),
+    array("cruises", "cruises")
+  );
+  $extras = array(
+    array("all_inclusive", "all inclusive")
+  );
+
+  //define function creating register form checkboxes
+  function createCheckboxGroup($data) {
+    $length = count($data);
+    for($i = 0; $i < $length; $i++){
+      $name = $data[$i][0];
+      $description = $data[$i][1];
+      echo '<div class="form-check mb-2">';
+      echo "<label class=\"form-check-label font-weight-bold\">";
+      echo "<input type=\"checkbox\" class=\"form-check-input\" name=\"$name\" value=\"$name\"";
+      if(isset($_POST[$name]) && $_POST[$name]){
+        echo " checked=\"checked\"";
+      }
+      echo "> $description</label></div>";
+    }
+  }
+
+  //title the page, include site's menu and js script
+  $page_title = "Register an Account";
+  include("templates/header.html");
+  echo '<script src="js/register.js"></script>';
+
+  //check if the form has been submitted
+  if($_SERVER['REQUEST_METHOD'] == 'POST') {
+
+    //check if required fields has been filled in..
+    if( (isset($_POST['privacy'])) && (!empty($_POST['first_name'])) && (!empty($_POST['last_name'])) &&                         (!empty($_POST['email'])) && (!empty($_POST['password'])) && (!empty($_POST['confirm_password'])) &&
+    ($_POST['password'] == $_POST['confirm_password'])) {
+
+      require("../../../../xxsecure/dbconnect.php");
+      $first_name = $_POST['first_name'];
+      $last_name = $_POST['last_name'];
+      $email = $_POST['email'];
+      $pass = $_POST['password'];
+      $mobile = null;
+      if(!empty($_POST['mobile_number'])) $mobile = $_POST['mobile_number'];
+      $options = [];
+      foreach($types as $value){
+        if(isset($_POST[$value[0]])){
+          array_push($options, $value[1]);
+        }
+      }
+      foreach($extras as $value){
+        if(isset($_POST[$value[0]])){
+          array_push($options, $value[1]);
+        }
+      }
+
+      //display confirmation message
+      echo '<div class="text-center">';
+      echo "<h4 class=\"mb-3\">Thank You $first_name !</h4>";
+      echo "<p>You have succesfully signed up for our newsletter!</p>";
+      echo "<p>We will inform you about any new offers regarding: </p>";
+      foreach($options as $value){
+        echo "<p> - $value </p>";
+      }
+      echo "<p>All promotions will be sent to you to the following email address: $email </p>";
+      if($mobile != "") echo "<p>We will also text you on your mobile: $mobile </p>";
+      echo "</div>";
+
+      //include footer navigation, close the database connection and terminate script
+      include("templates/footer.html");
+      mysqli_close($dbconnect);
+      exit();
+    }
+
+    //..if required fields has not been filled in,  display warning message(s)
+    else {
+      $errors = [];
+      if (empty($_POST['first_name']) OR empty($_POST['last_name']) OR empty($_POST['email'])
+          OR (empty($_POST['password'])) OR empty($_POST['confirm_password'])) {
+        $errors[] = "Fill in required fields please!";
+      }
+      if ($_POST['password'] != $_POST['confirm_password']) {
+        $errors[] = "Password confirmation doesn't match the password!";
+      }
+      if(!isset($_POST['privacy'])){
+        $errors[] = "You have to agree to our Privacy Policy!";
+      }
+      foreach($errors as $message) {
+        echo '<p class="lead text-danger font-weight-bold">' . $message . '</p>';
+      }
+    }
+  }
+
+?>
+
+<!-- display register form -->
+<form id="register_form" action="register.php" method="post">
+  <fieldset class="border border-primary rounded-lg px-5 pb-3">
+    <legend class="w-auto">Register an account</legend>
+    <div class="row my-3">
+      <div class="col"><h5>Please enter your details:</h5></div>
+      <div class="col"><h5 class="text-center">What are you interested in:</h5></div>
+    </div>
+    <div class="row">
+      <div class="col pr-5 border border-primary border-top-0 border-left-0 border-bottom-0">
+        <div class="form-group">
+          <label for="first_name" class="pl-1">first name:*</label>
+          <input type="text" class="form-control" name="first_name" placeholder="first name"
+           maxlength="40"
+           value="<?php if( isset($_POST['first_name']) ) echo $_POST['first_name']; ?>" />
+        </div>
+        <div class="form-group">
+          <label for="last_name" class="pl-1">last name:*</label>
+          <input type="text" class="form-control" name="last_name"
+           maxlength="60" placeholder="last name"
+           value="<?php if( isset($_POST['last_name']) ) echo $_POST['last_name'] ?>"/>
+        </div>
+        <div class="form-group">
+          <label for="email" class="pl-1">email:*</label>
+          <input type="email" class="form-control needs-validation" name="email"
+           maxlength="60" placeholder="email"
+           value="<?php if( isset($_POST['email']) ) echo $_POST['email'] ?>" />
+        </div>
+        <div class="form-group">
+          <label for="password" class="pl-1">password:*
+            <span id="password_validation">(at least 8 characters)<span></label>
+          <input type="password" class="form-control" name="password"
+           maxlength="20" placeholder="password"
+           value="<?php if( isset($_POST['password']) ) echo $_POST['password'] ?>" />
+        </div>
+        <div class="form-group">
+          <label for="confirm_password" class="pl-1">confirm password:*
+            <span id="confirm_password_validation">(must match the password)<span></label>
+          <input type="password" class="form-control" name="confirm_password"
+           maxlength="20" placeholder="confirm password"
+           value="<?php if( isset($_POST['confirm_password']) ) echo $_POST['confirm_password'] ?>" />
+        </div>
+        <div class="form-group">
+          <label for="mobile_number" class="pl-1">mobile number:</label>
+          <input type="text" class="form-control" name="mobile_number" placeholder="mobile number"
+          value="<?php if( isset($_POST['mobile_number']) ) echo $_POST['mobile_number'] ?>" />
+        </div>
+        <div class="form-check mt-4">
+          <label class="form-check-label">
+            <input type="checkbox"  name="privacy" class="form-check-input" value="">I agree to
+              <a href="#">Privacy policy</a>*
+            </label>
+        </div>
+      </div>
+      <div class="col pt-4">
+        <div class="row">
+          <div class="col-sm-6 pl-5"> <?php createCheckboxGroup($types); ?> </div>
+          <div class="col-sm-1"></div>
+          <div class="col-sm-5"> <?php createCheckboxGroup($extras); ?> </div>
+        </div>
+      </div>
+    </div>
+    <div class="row mt-4">
+      <div class="col">
+        <p>*Required fields</p>
+      </div>
+      <div class="col">
+        <input type="submit" value="submit" class="btn btn-primary float-md-right" />
+      </div>
+    </div>
+  </fieldset>
+</form>
+
+<?php
+
+  //include footer navigation
+  include("templates/footer.html");
+
+?>
