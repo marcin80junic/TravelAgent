@@ -2,13 +2,18 @@
 
   //initiate variables used in register form
   $types = array(
-    array("summer", "summer deals"),
-    array("fall", "after season deals"),
-    array("winter", "winter deals"),
-    array("cruises", "cruises")
+    array("summer", "summer holidays"),
+    array("city", "city breaks"),
+    array("mountains", "mountains/skiing"),
+    array("cruises", "cruises"),
+    array("tour", "tour holidays")
   );
   $extras = array(
-    array("all_inclusive", "all inclusive")
+    array("beach", "next to beach"),
+    array("swimming_pool", "swimming pool"),
+    array("aquapark", "aquapark"),
+    array("surfing", "surfing"),
+    array("gym", "gym/fitness facilities")
   );
 
   //define function creating register form checkboxes
@@ -46,29 +51,37 @@
       $pass = $_POST['password'];
       $mobile = null;
       if(!empty($_POST['mobile_number'])) $mobile = $_POST['mobile_number'];
-      $options = [];
-      foreach($types as $value){
-        if(isset($_POST[$value[0]])){
-          array_push($options, $value[1]);
+      $newsletter = isset($_POST['newsletter']);
+      if($newsletter) {
+        $options = [];
+        foreach($types as $value){
+          if(isset($_POST[$value[0]])){
+            array_push($options, $value[1]);
+          }
         }
-      }
-      foreach($extras as $value){
-        if(isset($_POST[$value[0]])){
-          array_push($options, $value[1]);
+        foreach($extras as $value){
+          if(isset($_POST[$value[0]])){
+            array_push($options, $value[1]);
+          }
         }
       }
 
       //display confirmation message
       echo '<div class="text-center">';
       echo "<h4 class=\"mb-3\">Thank You $first_name !</h4>";
-      echo "<p>You have succesfully signed up for our newsletter!</p>";
-      echo "<p>We will inform you about any new offers regarding: </p>";
-      foreach($options as $value){
-        echo "<p> - $value </p>";
+      echo "<p>You have succesfully registered an account!</p>";
+      if($newsletter) {
+        echo "<p>You have also signed up for our newsletter which means that we will
+              send you info regarding any new offers regarding: </p>";
+        foreach($options as $value){
+          echo "<p class=\"text-left w-25 m-auto pl-5\"> - $value </p>";
+        }
+        echo "<p class=\"mt-3\">to the following email address: $email </p>";
+        if($mobile != "") {
+          echo "<p>We will also text you on your mobile: $mobile about very special and exclusive offers</p>";
+        }
+        echo "</div>";
       }
-      echo "<p>All promotions will be sent to you to the following email address: $email </p>";
-      if($mobile != "") echo "<p>We will also text you on your mobile: $mobile </p>";
-      echo "</div>";
 
       //include footer navigation, close the database connection and terminate script
       include("templates/footer.html");
@@ -99,14 +112,14 @@
 
 <!-- display register form -->
 <form id="register_form" action="register.php" method="post">
-  <fieldset class="border border-primary rounded-lg px-5 pb-3">
+  <fieldset class="border border-primary rounded-lg p-4">
     <legend class="w-auto">Register an account</legend>
-    <div class="row my-3">
-      <div class="col"><h5>Please enter your details:</h5></div>
-      <div class="col"><h5 class="text-center">What are you interested in:</h5></div>
+    <div class="row">
+      <div class="col mb-3"><h5>Please enter your details:</h5></div>
+      <div class="col mb-3"><h5 class="text-center">What are you interested in:</h5></div>
     </div>
     <div class="row">
-      <div class="col pr-5 border border-primary border-top-0 border-left-0 border-bottom-0">
+      <div class="col pr-3 border border-primary border-top-0 border-left-0 border-bottom-0">
         <div class="form-group">
           <label for="first_name" class="pl-1">first name:*</label>
           <input type="text" class="form-control" name="first_name" placeholder="first name"
@@ -142,29 +155,31 @@
         <div class="form-group">
           <label for="mobile_number" class="pl-1">mobile number:</label>
           <input type="text" class="form-control" name="mobile_number" placeholder="mobile number"
-          value="<?php if( isset($_POST['mobile_number']) ) echo $_POST['mobile_number'] ?>" />
+          value="<?php if( isset($_POST['mobile_number']) ) echo $_POST['mobile_number']; ?>" />
         </div>
         <div class="form-check mt-4">
           <label class="form-check-label">
-            <input type="checkbox"  name="privacy" class="form-check-input" value="">I agree to
-              <a href="#">Privacy policy</a>*
-            </label>
+            <input type="checkbox"  name="privacy" class="form-check-input" value="">
+              I agree to <a href="#">Privacy policy*</a>
+          </label>
+          <label class="form-check-label float-right">
+            <input type="checkbox" name="newsletter" class="form-check-input" value=""
+              <?php if( isset($_POST['newsletter']) ) echo 'checked="true"'; ?> >
+              Sign up for our newsletter
+          </label>
         </div>
       </div>
-      <div class="col pt-4">
+      <div class="col">
         <div class="row">
-          <div class="col-sm-6 pl-5"> <?php createCheckboxGroup($types); ?> </div>
-          <div class="col-sm-1"></div>
-          <div class="col-sm-5"> <?php createCheckboxGroup($extras); ?> </div>
+          <div class="col-sm-6 pl-5 mt-4"> <?php createCheckboxGroup($types); ?> </div>
+          <div class="col-sm-6 pr-5 mt-4"> <?php createCheckboxGroup($extras); ?> </div>
         </div>
       </div>
     </div>
-    <div class="row mt-4">
+    <div class="row">
+      <div class="col pt-3">*Required fields</div>
       <div class="col">
-        <p>*Required fields</p>
-      </div>
-      <div class="col">
-        <input type="submit" value="submit" class="btn btn-primary float-md-right" />
+        <input type="submit" value="submit" class="btn btn-primary float-md-right">
       </div>
     </div>
   </fieldset>

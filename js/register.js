@@ -54,11 +54,21 @@
       validateField(e, $password);
       validateField(e, $confirmPassword);
     });
+
+    $password.keyup();
+    $confirmPassword.keyup();
   });
 
   function validateField(e, $element) {
-    var name = $element.val();
-    if(name != "") {
+    if($element === $password) {
+      if($passFeedback.is(".text-danger")) {
+        $element.addClass("border border-danger");
+        e.preventDefault();
+        return;
+      }
+    }
+    var value = $element.val();
+    if(value != "") {
       $element.removeClass("border border-danger");
     } else {
       e.preventDefault();
