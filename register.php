@@ -2,18 +2,19 @@
 
   //initiate variables used in register form
   $types = array(
-    array("summer", "summer holidays"),
-    array("city", "city breaks"),
-    array("mountains", "mountains/skiing"),
-    array("cruises", "cruises"),
-    array("tour", "tour holidays")
+    array("summer_hol", "summer holidays"),
+    array("city_break", "city breaks"),
+    array("mountains", "mountains"),
+    array("cruise", "cruises"),
+    array("tour_hol", "tour holidays")
   );
   $extras = array(
     array("beach", "next to beach"),
     array("swimming_pool", "swimming pool"),
     array("aquapark", "aquapark"),
     array("surfing", "surfing"),
-    array("gym", "gym/fitness facilities")
+    array("skiing", "skiing"),
+    array("gym_fitness", "gym/fitness facilities")
   );
 
   //define function creating register form checkboxes
@@ -32,6 +33,18 @@
     }
   }
 
+  //function checking is email address already in a database
+  function isUnique($dbc, $email) {
+    $query = "SELECT email FROM users WHERE email='$email'";
+    $result = mysqli_query($dbc, $query);
+    if($result) {
+      $row = mysqli_fetch_array($result);
+      if($row[0]) return false;
+      else return true;
+    }
+    return false;
+  }
+
   //title the page, include site's menu and js script
   $page_title = "Register an Account";
   include("templates/header.html");
@@ -40,71 +53,127 @@
   //check if the form has been submitted
   if($_SERVER['REQUEST_METHOD'] == 'POST') {
 
-    //check if required fields has been filled in..
-    if( (isset($_POST['privacy'])) && (!empty($_POST['first_name'])) && (!empty($_POST['last_name'])) &&                         (!empty($_POST['email'])) && (!empty($_POST['password'])) && (!empty($_POST['confirm_password'])) &&
-    ($_POST['password'] == $_POST['confirm_password'])) {
+    //declare variables and open connection to the database
+    $errors = $options = $news = [];
+    $first_name = $last_name = $email = $pass = $conf_pass = $mobile = "";
+    $newsletter = false;
+    require("../../../../xxsecure/dbconnect.php");
 
-      require("../../../../xxsecure/dbconnect.php");
-      $first_name = $_POST['first_name'];
-      $last_name = $_POST['last_name'];
-      $email = $_POST['email'];
-      $pass = $_POST['password'];
-      $mobile = null;
-      if(!empty($_POST['mobile_number'])) $mobile = $_POST['mobile_number'];
-      $newsletter = isset($_POST['newsletter']);
+    //validate all form fields and record all errors
+    if(!empty($_POST['first_name'])) {
+      $first_name = trim($_POST['first_name']);
+    } else {
+      $errors[] = "Fill in first name please!";
+    }
+    if(!empty($_POST['last_name'])) {
+      $last_name = trim($_POST['last_name']);
+    } else {
+      $errors[] = "Fill in last name please!";
+    }
+    if(!empty($_POST['email'])) {
+      $email = trim($_POST['email']);
+      if(!isUnique($dbconnect, $email)){
+        $errors[] = "this email address is already in our database!";
+      }
+    } else {
+      $errors[] = "fill in an email address please!";
+    }
+    if(!empty($_POST['password'])) {
+      $pass = trim($_POST['password']);
+      if(strlen($pass) < 8) {
+        $errors[] = "password must be AT LEAST 8 characters long";
+      }
+    } else {
+      $errors[] = "fill in password field please!";
+    }
+    if(!empty($_POST['confirm_password'])) {
+      $conf_pass = trim($_POST['confirm_password']);
+      if($conf_pass != $pass) {
+        $errors[] = "password confirmation DOESN'T match!";
+      }
+    }
+    if(!empty($_POST['mobile_number'])) {
+      $mobile = trim($_POST['mobile_number']);
+    }
+    if(!isset($_POST['privacy'])) {
+      $errors[] = "You have to agree to our Privacy Policy!";
+    }
+
+    //if any errors encountered display them and continue back to the form
+    if(count($errors) > 0) {
+      foreach($errors as $message) {
+        echo '<p class="lead text-danger font-weight-bold">' . $message . '</p>';
+      }
+    }
+
+    //otherwise check if signed up for newsletter...
+    else {
+      if(isset($_POST['newsletter'])) {
+        $newsletter = ($_POST['newsletter'] == "Yes")? true: false;
+      }
       if($newsletter) {
-        $options = [];
         foreach($types as $value){
+          $news[] = isset($_POST[$value[0]])? 1: 0;
           if(isset($_POST[$value[0]])){
             array_push($options, $value[1]);
           }
         }
         foreach($extras as $value){
+          $news[] = isset($_POST[$value[0]])? 1: 0;
           if(isset($_POST[$value[0]])){
             array_push($options, $value[1]);
           }
         }
       }
 
-      //display confirmation message
-      echo '<div class="text-center">';
-      echo "<h4 class=\"mb-3\">Thank You $first_name !</h4>";
-      echo "<p>You have succesfully registered an account!</p>";
+      //..and insert a record into a database
+      $reg_query = "INSERT INTO users(f_name, l_name, email, password, mobile, date_registered)";
+      $reg_query .= "VALUES('$first_name', '$last_name', '$email', SHA2('$pass', 512), '$mobile', NOW())";
+      $register_response = @mysqli_query($dbconnect, $reg_query);
+      $newsletter_response = null;
       if($newsletter) {
-        echo "<p>You have also signed up for our newsletter which means that we will
-              send you info regarding any new offers regarding: </p>";
-        foreach($options as $value){
-          echo "<p class=\"text-left w-25 m-auto pl-5\"> - $value </p>";
+        if($register_response) {
+          $user_id_query = "SELECT user_id FROM users WHERE email='$email'";
+          $r = mysqli_query($dbconnect, $user_id_query);
+          $row = mysqli_fetch_array($r);
+          $user_id = $row[0];
+          $newsletter_query = "INSERT INTO newsletter VALUES('$user_id', '{$news[0]}', '{$news[1]}',
+           '{$news[2]}', '{$news[3]}', '{$news[4]}', '{$news[5]}', '{$news[6]}', '{$news[7]}', '{$news[8]}',
+          '{$news[9]}', '{$news[10]}')";
+          $newsletter_response = @mysqli_query($dbconnect, $newsletter_query);
         }
-        echo "<p class=\"mt-3\">to the following email address: $email </p>";
-        if($mobile != "") {
-          echo "<p>We will also text you on your mobile: $mobile about very special and exclusive offers</p>";
+      }
+
+      //display confirmation message..
+      if($register_response){
+        echo '<div class="text-center">';
+        echo "<h4 class=\"mb-3\">Thank You $first_name !</h4>";
+        echo "<p>You have succesfully registered an account!</p>";
+        if($newsletter_response) {
+          echo "<p>You have also signed up for our newsletter which means that we will
+                send you info regarding any new offers regarding: </p>";
+          foreach($options as $value){
+            echo "<p class=\"text-left w-25 m-auto pl-5\"> - $value </p>";
+          }
+          echo "<p class=\"mt-3\">to the following email address: $email </p>";
+          if($mobile != "") {
+            echo "<p>We will also text you on your mobile: $mobile about very special and exclusive offers</p>";
+          }
         }
         echo "</div>";
+      }
+
+      //..or error message
+      else {
+        echo '<h4>System error</h4><p class="error">You coud not be registered due to a system error.
+              We apologise for any inconvenience.<br>Please try again later..</p>';
+        echo "<p>{mysqli_error($dbconnect)}<br><br>Query: $query</p>";
       }
 
       //include footer navigation, close the database connection and terminate script
       include("templates/footer.html");
       mysqli_close($dbconnect);
       exit();
-    }
-
-    //..if required fields has not been filled in,  display warning message(s)
-    else {
-      $errors = [];
-      if (empty($_POST['first_name']) OR empty($_POST['last_name']) OR empty($_POST['email'])
-          OR (empty($_POST['password'])) OR empty($_POST['confirm_password'])) {
-        $errors[] = "Fill in required fields please!";
-      }
-      if ($_POST['password'] != $_POST['confirm_password']) {
-        $errors[] = "Password confirmation doesn't match the password!";
-      }
-      if(!isset($_POST['privacy'])){
-        $errors[] = "You have to agree to our Privacy Policy!";
-      }
-      foreach($errors as $message) {
-        echo '<p class="lead text-danger font-weight-bold">' . $message . '</p>';
-      }
     }
   }
 
@@ -116,7 +185,7 @@
     <legend class="w-auto">Register an account</legend>
     <div class="row">
       <div class="col mb-3"><h5>Please enter your details:</h5></div>
-      <div class="col mb-3"><h5 class="text-center">What are you interested in:</h5></div>
+      <div class="col mb-3"><h5 class="text-center">Sign up for the newsletter</h5></div>
     </div>
     <div class="row">
       <div class="col pr-3 border border-primary border-top-0 border-left-0 border-bottom-0">
@@ -135,7 +204,7 @@
         <div class="form-group">
           <label for="email" class="pl-1">email:*</label>
           <input type="email" class="form-control needs-validation" name="email"
-           maxlength="60" placeholder="email"
+           maxlength="128" placeholder="email"
            value="<?php if( isset($_POST['email']) ) echo $_POST['email'] ?>" />
         </div>
         <div class="form-group">
@@ -162,17 +231,36 @@
             <input type="checkbox"  name="privacy" class="form-check-input" value="">
               I agree to <a href="#">Privacy policy*</a>
           </label>
-          <label class="form-check-label float-right">
-            <input type="checkbox" name="newsletter" class="form-check-input" value=""
-              <?php if( isset($_POST['newsletter']) ) echo 'checked="true"'; ?> >
-              Sign up for our newsletter
-          </label>
         </div>
       </div>
+
       <div class="col">
+        <div class="text-center">
+          <h6>Choose points of interest:</h6>
+        </div>
         <div class="row">
           <div class="col-sm-6 pl-5 mt-4"> <?php createCheckboxGroup($types); ?> </div>
           <div class="col-sm-6 pr-5 mt-4"> <?php createCheckboxGroup($extras); ?> </div>
+        </div>
+        <div class="row mt-3">
+          <h6 class="mx-auto my-3">Do you want to sign up for the newsletter?</h6>
+        </div>
+        <div class="row">
+          <div class="mx-auto">
+            <div class="form-check-inline">
+              <label class="form-check-label mx-3">
+                <input type="radio" name="newsletter" class="form-check-input" name="newsletter"
+                value="Yes" checked="true">Yes
+              </label>
+            </div>
+            <div class="form-check-inline">
+              <label class="form-check-label">
+                <input type="radio" name="newsletter" class="form-check-input" name="newsletter"
+                value="No" <?php if( isset($_POST['newsletter']) && ($_POST['newsletter'] == "No") )
+                echo 'checked="true"'; ?> >No
+              </label>
+            </div>
+          </div>
         </div>
       </div>
     </div>
