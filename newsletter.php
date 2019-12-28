@@ -1,117 +1,74 @@
 <?php
 
-  $types = array(
-    array("summer", "summer deals"),
-    array("fall", "after season deals"),
-    array("winter", "winter deals"),
-    array("cruises", "cruises")
-  );
-
-  $extras = array(
-    array("all_inclusive", "all inclusive")
-  );
-
-  function createCheckboxGroup($data) {
-    $length = count($data);
-    for($i = 0; $i < $length; $i++){
-      $name = $data[$i][0];
-      $description = $data[$i][1];
-      echo '<div class="form-check">';
-      echo "<input type=\"checkbox\" class=\"form-check-input\" name=\"$name\" value=\"$name\"";
-      if(isset($_POST[$name]) && $_POST[$name]){
-        echo " checked=\"checked\"";
-      }
-      echo '>';
-      echo "<label for=\"$name\" class=\"form-check-label font-weight-bold\"> $description </label>";
-      echo '</div>';
-    }
-  }
-
-  $page_title = "Sign Up for Newsletter";
+  //title the page, include site's menu
+  $page_title = "Sign up for a newsletter";
   include("templates/header.html");
-  echo '<script src="js/newsletter.js"></script>';
 
+  //check if the form has been submitted
   if($_SERVER['REQUEST_METHOD'] == 'POST') {
-    if( ($_POST['first-name'] != "") && ($_POST['email'] != "") ){
-      $first_name = $_POST['first-name'];
-      $last_name = $_POST['last-name'];
-      $email = $_POST['email'];
-      $mobile = $_POST['mobile-number'];
-      $options = [];
-      foreach($types as $value){
-        if(isset($_POST[$value[0]])){
-          array_push($options, $value[1]);
+
+    $news = [];
+
+    //if the email field has been filled in open connection to the database,
+    //check if the email is already in database, if not add it to newsletter table
+    if(!empty($_POST['email'])) {
+      require("../../../../xxsecure/dbconnect.php");
+      require("php/mysql_querries.php");
+      $email = mysqli_real_escape_string($dbconnect, trim($_POST['email']));
+      if(newsletter_is_unique_email($dbconnect, $email)) {
+        $length = count($types) + count($extras);
+        for($i=0; $i<$length; $i++) {
+          $news[] = 1;
         }
-      }
-      foreach($extras as $value){
-        if(isset($_POST[$value[0]])){
-          array_push($options, $value[1]);
+        $response = newsletter_insert($dbconnect, $email, $news);
+        if($response) {
+          echo '<div class="text-center"><h3 class="mb-3">Congratulations</h3>';
+          echo '<p>You have succesfully signed up for our newsletter!</p>';
+          echo "<p>You will receive special offers on following email address:
+                <strong>$email</strong></p></div>";
+        } else {
+          echo '<h4>System error</h4><p class="error">You coud not be signed up for a newsletter due
+                to a system error. We apologise for any inconvenience.<br>Please try again later..</p>';
+          echo "<p>".mysqli_error($dbconnect)."</p>";
         }
+      } else {
+        echo '<p class="lead text-danger text-center font-weight-bold">
+              You have already signed up for our newsletter!</p>';
       }
-      echo '<div class="text-center">';
-      echo "<h4 class=\"mb-3\">Thank You $first_name !</h4>";
-      echo "<p>You have succesfully signed up for our newsletter!</p>";
-      echo "<p>We will inform you about any new offers regarding: </p>";
-      foreach($options as $value){
-        echo "<p> - $value </p>";
-      }
-      echo "<p>All promotions will be sent to you to the following email address: $email </p>";
-      if($mobile != "") echo "<p>We will also text you on your mobile: $mobile </p>";
-      echo "</div>";
-      echo '<script>
-              window.addEventListener("load", function(){
-                $("form").hide();
-              }, false);
-            </script>';
-    } else {
-      echo '<p class="lead text-danger font-weight-bold">Fill in required fields please!</p>';
+      mysqli_close($dbconnect);
+      include("templates/footer.html");
+      exit();
+    }
+
+    //else display error message
+    else {
+      echo '<p class="lead text-danger text-center font-weight-bold">
+            Please anter your email address</p>';
     }
   }
 
 ?>
 
-<form action="newsletter.php" method="post">
-  <fieldset class="border border-primary rounded-lg px-5 pb-3">
-    <legend class="w-auto">Sign up for Newsletter</legend>
-    <div class="row my-3">
-      <div class="col"><h5>Please enter your details:</h5></div>
-      <div class="col"><h5>What are you interested in:</h5></div>
-    </div>
-    <div class="row">
-      <div class="col">
-        <div class="form-group">
-          <label for="first-name">*first name:</label>
-          <input type="text" class="form-control" name="first-name" placeholder="first name"
-          value="<?php if( isset($_POST['first-name']) ) echo $_POST['first-name']; ?>" />
+<div class="text-center">
+  <form action="newsletter.php" method="post">
+    <fieldset class="w-75 mx-auto my-5 p-4 border border-primary rounded-lg">
+      <h3>Sign up for our newsletter</h3>
+      <h6 class="mt-3 mb-5">Make sure that you will not miss on any special offers!</h6>
+      <div class="input-group w-75 mx-auto">
+        <div class="input-group-prepend">
+          <span class="input-group-text">email</span>
         </div>
-        <div class="form-group">
-          <label for="last-name">last name:</label>
-          <input type="text" class="form-control" name="last-name" placeholder="last name"
-          value="<?php if( isset($_POST['last-name']) ) echo $_POST['last-name'] ?>" />
-        </div>
-        <div class="form-group">
-          <label for="email">*email:</label>
-          <input type="email" class="form-control needs-validation" name="email" placeholder="email"
-          value="<?php if( isset($_POST['email']) ) echo $_POST['email'] ?>" />
-        </div>
-        <div class="form-group">
-          <label for="mobile-number">mobile number:</label>
-          <input type="text" class="form-control" name="mobile-number" placeholder="mobile number"
-          value="<?php if( isset($_POST['mobile-number']) ) echo $_POST['mobile-number'] ?>" />
+        <input type="email" name="email" class="form-control" maxlength="120">
+        <div class="input-group-append">
+          <button type="submit" class="btn btn-primary">Sign Up</button>
         </div>
       </div>
-      <div class="col pt-4">
-        <div class="row">
-          <div class="col-sm-6 pl-5"> <?php createCheckboxGroup($types); ?> </div>
-          <div class="col-sm-1"></div>
-          <div class="col-sm-5"> <?php createCheckboxGroup($extras); ?> </div>
-        </div>
-      </div>
-    </div>
-    <div class="row float-md-right mt-4">
-      <input type="submit" value="submit" class="btn btn-primary" />
-    </div>
-  </fieldset>
-</form>
+    </fieldset>
+  </form>
+</div>
 
-<?php  include("templates/footer.html"); ?>
+<?php
+
+  include("templates/footer.html");
+
+?>
