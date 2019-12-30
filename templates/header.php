@@ -9,13 +9,13 @@
   <script src="js/popper.js"></script>
   <script src="js/bootstrap.js"></script>
   <script src="js/init.js"></script>
-  <title>Europe Travel Experts</title>
+  <title><?php echo "$page_title"; ?></title>
   </head>
-<body>
-  <div class="container-fluid py-3">
+<body class="d-flex flex-column">
+  <div class="wrapper container-fluid flex-fill px-5 pb-5 pt-3">
     <h1 class="text-white text-center">Europe Travel Experts<br><small>make your holidays come true...</small></h1>
-    <div class="container px-0 my-3 border border-primary rounded-lg">
-      <nav class="navbar sticky-top navbar-expand-sm bg-info justify-content-center py-0 shadow-sm">
+    <div class="px-0 border border-primary rounded-lg">
+      <nav class="navbar navbar-expand-sm sticky-top bg-info shadow-sm py-0">
         <ul id="navigation" class="navbar-nav">
           <li id="index" class="nav-item px-2 py-1">
             <a class="nav-link text-white" href="index.php">Home</a>
@@ -30,6 +30,11 @@
             <a class="nav-link text-white" href="register_login.php">Register/Login</a>
           </li>
         </ul>
+        <ul id="navigation" class="navbar-nav ml-auto">
+          <li id="admin" class="nav-item px-2 py-1">
+            <a class="nav-link text-white" href="admin.php">admin</a>
+          </li>
+        </ul>
       </nav>
 
-      <div class="container main p-5">
+      <div class="flex-grow-1 p-5">

@@ -3,7 +3,26 @@
   function users_insert($dbc, $data) {
     $query = "INSERT INTO users(f_name, l_name, email, password, mobile, date_registered)
               VALUES('$data[0]', '$data[1]', '$data[2]', SHA2('$data[3]', 512), '$data[4]', NOW())";
-    return mysqli_query($dbc, $query);
+    return @mysqli_query($dbc, $query);
+  }
+
+  function users_select_all($dbc) {
+    $query = "SELECT * FROM users";
+    return @mysqli_query($dbc, $query);
+  }
+
+  function users_select($dbc, $data) {
+    $query = 'SELECT ';
+    $length = COUNT($data);
+    for($i = 0; $i < $length; $i++) {
+      if($i == $length - 1) {
+        $query .= "$data[$i] ";
+      } else {
+        $query .= "$data[$i], ";
+      }
+    }
+    $query .= "FROM users";
+    return @mysqli_query($dbc, $query);
   }
 
   function users_is_unique_email($dbc, $email) {

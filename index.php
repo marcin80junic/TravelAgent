@@ -1,6 +1,6 @@
 <?php
 
-include("templates/header.html");
+include("templates/header.php");
 
 include("templates/footer.html");
 

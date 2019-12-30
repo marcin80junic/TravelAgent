@@ -1,8 +1,8 @@
 <?php
 
   //title the page, include a header and javascript
-  $page_title = "Register or Login";
-  include("templates/header.html");
+  $page_title = "Register/Login";
+  include("templates/header.php");
   echo '<script src="js/register_login.js"></script>';
 
 ?>

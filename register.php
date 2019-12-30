@@ -18,7 +18,8 @@
 
   //title the page, include site's menu and js script
   $page_title = "Register an Account";
-  include("templates/header.html");
+  include("templates/header.php");
+  require("php/mysql_querries.php");
   echo '<script src="js/register.js"></script>';
 
   //check if the form has been submitted
@@ -29,7 +30,6 @@
     $email = $pass = $conf_pass = $mobile = "";
     $newsletter = false;
     require("../../../../xxsecure/dbconnect.php");
-    require("php/mysql_querries.php");
 
     //validate all form fields and record all errors
     if(!empty($_POST['first_name'])) {

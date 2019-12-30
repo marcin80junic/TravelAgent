@@ -1,11 +1,15 @@
-.container-fluid {
+body {
+  min-height: 100vh;
+}
+
+.wrapper {
   background-image: url("../img/sky.png");
   background-size: cover;
   background-repeat: no-repeat;
   background-attachment: fixed;
 }
-.container .main {
-  height: 1000px;
+.flex-grow-1 {
+  min-height: 130vh;
   background-image: url("../img/plane3.png"), url("../img/tile.jpg");
   background-size: contain, auto;
   background-position: center bottom, left top;

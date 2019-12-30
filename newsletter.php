@@ -2,7 +2,7 @@
 
   //title the page, include site's menu
   $page_title = "Sign up for a newsletter";
-  include("templates/header.html");
+  include("templates/header.php");
 
   //check if the form has been submitted
   if($_SERVER['REQUEST_METHOD'] == 'POST') {
