@@ -3,16 +3,43 @@
   //setting up page
   $page_title = "Admin Utility";
   include("templates/header.php");
+  echo '<script src="js/admin.js"></script>';
+  echo '<script src="js/admin_modal.js"></script>';
   require("php/mysql_querries.php");
 
-  //generic function creating and displaying table
+  //generic function creating table form
+  function create_form($data) {
+    foreach($data as $array) {
+      $value = $array[0];
+      $name = $array[1];
+      echo '<div class="custom-control custom-checkbox d-inline mr-3">
+              <input type="checkbox" class="custom-control-input" id="'.$value.'" name="'.$value.'" ';
+      if(isset($_POST["$value"])) echo 'checked="true"';
+      echo '><label class="custom-control-label mt-2" for="'.$value.'">'.$name.'</label></div>';
+    }
+  }
+
+  //generic function collecting admin choices
+  function collect_data($data) {
+    $which = $headers = [];
+    foreach($data as $array) {
+      if(isset($_POST["$array[0]"])) {
+        $which[] = $array[0];
+        $headers[] = $array[1];
+      }
+    }
+    return array($which, $headers);
+  }
+
+  //generic function creating and displaying a table
   function create_table($table_name, $headers=false, $data=false, $result=false) {
     echo '<h3 class="text-center mb-3">'.$table_name.'</h3>';
     if(!$headers) {
       echo '<p class="text-center text-danger">No data selected!</p>';
       return;
     }
-    echo '<table class="table table-bordered table-info"><thead class="thead-dark"><tr><th>#</th>';
+    echo '<div class="overflow-auto"><table class="table table-bordered table-info">
+          <thead class="thead-dark"><tr><th>#</th>';
     foreach($headers as $header) {
       echo "<th>$header</th>";
     }
@@ -20,6 +47,7 @@
     if($data) {
       $index = 1;
       $length = COUNT($data);
+      $table = strchr($table_name, ' ', true);
       echo '<tbody>';
       while($row = mysqli_fetch_array($result)) {
         echo '<tr><td>'.$index++.'</td>';
@@ -27,89 +55,74 @@
           echo '<td>'.$row["$data[$i]"].'</td>';
         }
         $key = $row[0];
-        echo '<td><a href="php/edit_user.php?id='.$key.'">edit</a>
-              <a href="php/remove_user.php?id='.$key.'" class="ml-2">remove</a></td></tr>';
+        echo '<td><form action="admin.php" method="get">
+              <a href="php/admin_edit.php?table='.$table.'&id='.$key.'">edit</a>
+              <a href="php/admin_remove.php?table='.$table.'&id='.$key.'" class="remove ml-2">
+              remove</a></form></td></tr>';
       }
-      echo '</tbody></table>';
+      echo '</tbody></table></div>';
     } else {
       echo '<h2>Internal Error</h2>';
     }
   }
 
-  function create_newsletter_form($data) {
-    foreach($data as $array) {
-      $value = $array[0];
-      $name = $array[1];
-      echo '<div class="custom-control custom-checkbox d-inline ml-3">
-              <input type="checkbox" class="custom-control-input" id="'.$value.'" name="'.$value.'" ';
-      if(isset($_POST["$value"])) echo 'checked="true"';
-      echo '><label class="custom-control-label mt-2" for="'.$value.'">'.$name.'</label></div>';
-    }
-  }
+?>
 
-  ?>
-
-
+<!--admin interface-->
 <div class="text-center mb-4">
   <h3>Database Admin Utility</h3>
 
-  <form action="admin.php" method="post" class="mt-5">
-    <fieldset class="border border-primary px-3 pb-3">
+  <form action="admin.php" method="post" class="mt-4">
+    <fieldset class="border border-primary px-4 pb-3">
       <legend class="text-left border border-primary w-auto ml-3">
         <h6 class="m-0 p-1">Users table</h6>
       </legend>
-      <div class="custom-control custom-checkbox d-inline">
-        <input type="checkbox" class="custom-control-input" id="user_id" name="user_id"
-        <?php if(isset($_POST['user_id'])) echo 'checked="true"'; ?>>
-        <label class="custom-control-label mt-2" for="user_id">user id</label>
+      <div class="d-flex flex-row">
+        <div class="d-flex flex-wrap align-self-center">
+          <div class="custom-control custom-checkbox d-inline mr-3">
+            <input type="checkbox" class="custom-control-input" id="user_id" name="user_id"
+            <?php if(isset($_POST['user_id'])) echo 'checked="true"'; ?>>
+            <label class="custom-control-label mt-2" for="user_id">user id</label>
+          </div>
+          <?php create_form($user_data); ?>
+        </div>
+        <div class="align-self-end ml-auto d-flex flex-column bg-light p-2">
+          <a href="#" class="select_all">select all</a>
+          <a href="#" class="clear_all">clear all</a>
+          <button type="submit" name="users_table" class="btn btn-info float-right">show</button>
+        </div>
       </div>
-      <div class="custom-control custom-checkbox d-inline ml-3">
-        <input type="checkbox" class="custom-control-input" id="first_name" name="first_name"
-        <?php if(isset($_POST['first_name'])) echo 'checked="true"'; ?>>
-        <label class="custom-control-label mt-2" for="first_name">first name</label>
-      </div>
-      <div class="custom-control custom-checkbox d-inline ml-3">
-        <input type="checkbox" class="custom-control-input" id="last_name" name="last_name"
-        <?php if(isset($_POST['last_name'])) echo 'checked="true"'; ?>>
-        <label class="custom-control-label mt-2" for="last_name">last name</label>
-      </div>
-      <div class="custom-control custom-checkbox d-inline ml-3">
-        <input type="checkbox" class="custom-control-input" id="email" name="email"
-        <?php if(isset($_POST['email'])) echo 'checked="true"'; ?>>
-        <label class="custom-control-label mt-2" for="email">email</label>
-      </div>
-      <div class="custom-control custom-checkbox d-inline ml-3">
-        <input type="checkbox" class="custom-control-input" id="mobile" name="mobile"
-        <?php if(isset($_POST['mobile'])) echo 'checked="true"'; ?>>
-        <label class="custom-control-label mt-2" for="mobile">mobile</label>
-      </div>
-      <div class="custom-control custom-checkbox d-inline ml-3">
-        <input type="checkbox" class="custom-control-input" id="date_registered" name="date_registered"
-        <?php if(isset($_POST['date_registered'])) echo 'checked="true"'; ?>>
-        <label class="custom-control-label mt-2" for="date_registered">date registered</label>
-      </div>
-      <div class="custom-control custom-checkbox d-inline ml-3">
-        <input type="checkbox" class="custom-control-input" id="last_login" name="last_login"
-        <?php if(isset($_POST['last_login'])) echo 'checked="true"'; ?>>
-        <label class="custom-control-label mt-2" for="last_login">last login</label>
-      </div>
-      <button type="submit" name="users_table" class="btn btn-info float-right">show</button>
     </fieldset>
   </form>
+
   <form action="admin.php" method="post" class="mt-3">
-    <fieldset class="border border-primary px-3 pb-3">
+    <fieldset class="border border-primary px-4 pb-3">
       <legend class="text-left border border-primary w-auto ml-3">
         <h6 class="m-0 p-1">Newsletter table</h6>
       </legend>
-      <div class="custom-control custom-checkbox d-inline">
-        <input type="checkbox" class="custom-control-input" id="n_email" name="n_email"
-        <?php if(isset($_POST['n_email'])) echo 'checked="true"'; ?>>
-        <label class="custom-control-label mt-2" for="n_email">email</label>
+      <div class="d-flex flex-row">
+        <div class="d-flex flex-wrap align-self-center">
+          <div class="custom-control custom-checkbox d-inline mr-3">
+            <input type="checkbox" class="custom-control-input" id="newsletter_email" name="newsletter_email"
+            <?php if(isset($_POST['newsletter_email'])) echo 'checked="true"'; ?>>
+            <label class="custom-control-label mt-2" for="newsletter_email">email</label>
+          </div>
+          <?php create_form(array_merge($holiday_types, $holiday_extras)); ?>
+        </div>
+        <div class="align-self-end ml-auto d-flex flex-column bg-light p-2">
+          <a href="#" class="select_all">select all</a>
+          <a href="#" class="clear_all">clear all</a>
+          <button type="submit" name="newsletter_table" class="btn btn-info mt-1">show</button>
+        </div>
       </div>
-      <?php create_newsletter_form(array_merge($types, $extras)); ?>
-      <button type="submit" name="users_table" class="btn btn-info float-right mt-3">show</button>
     </fieldset>
   </form>
+
+</div>
+
+<div id="dialog-1">
+  <iframe id="external-frame" style="border: 0px; " src="" width="100%" height="90%">
+  </iframe>
 </div>
 
 
@@ -118,54 +131,49 @@
   //check if the form has been submitted
   if($_SERVER['REQUEST_METHOD'] == "POST") {
 
+    //connect to the database and initiate variables
     require("../../../../xxsecure/dbconnect.php");
     $table_name = "";
-    $data = $headers = [];
+    $collected_data = $which_data = $headers = [];
     $result = "";
 
+    //check which table have been requested
     if(isset($_POST['users_table'])) {
-
       $table_name = "users table";
-
       if(isset($_POST['user_id'])) {
-        $data[] = 'user_id';
+        $which_data[] = "user_id";
         $headers[] = "user id";
       }
-      if(isset($_POST['first_name'])) {
-        $data[] = 'f_name';
-        $headers[] = "first name";
-      }
-      if(isset($_POST['last_name'])) {
-        $data[] = 'l_name';
-        $headers[] = "last name";
-      }
-      if(isset($_POST['email'])) {
-        $data[] = 'email';
+      $collected_data = collect_data($user_data);
+    }
+    elseif(isset($_POST['newsletter_table'])) {
+      $table_name = "newsletter table";
+      if(isset($_POST['newsletter_email'])) {
+        $which_data[] = "email";
         $headers[] = "email";
       }
-      if(isset($_POST['mobile'])) {
-        $data[] = 'mobile';
-        $headers[] = "mobile";
-      }
-      if(isset($_POST['date_registered'])) {
-        $data[] = 'date_registered';
-        $headers[] = "registration date";
-      }
-      if(isset($_POST['last_login'])) {
-        $data[] = 'last_login';
-        $headers[] = "last login";
-      }
-      if(COUNT($data) > 0) {
-        $result = users_select_all($dbconnect);
-      } else {
-        create_table($table_name);
-        include("templates/footer.html");
-        exit();
-      }
+      $collected_data = collect_data(array_merge($holiday_types, $holiday_extras));
     }
 
+    $which_data = array_merge($which_data, $collected_data[0]);
+    $headers = array_merge($headers, $collected_data[1]);
+    if(COUNT($which_data) > 0) {
+      switch($table_name) {
+        case 'users table':
+          $result = users_select_all($dbconnect);
+          break;
+        case 'newsletter table':
+          $result = newsletter_select_all($dbconnect);
+          break;
+      }
+    } else {
+      create_table($table_name);
+      include("templates/footer.html");
+      mysqli_close($dbconnect);
+      exit();
+    }
     if($result) {
-      create_table($table_name, $headers, $data, $result);
+      create_table($table_name, $headers, $which_data, $result);
     } else {
       echo "<h3>System Error</h3><p>".mysqli_error($dbconnect)."</p>";
     }

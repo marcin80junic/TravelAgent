@@ -205,8 +205,8 @@
           <h6>Choose points of interest:</h6>
         </div>
         <div class="row">
-          <div class="col-sm-6 pl-5 mt-4"> <?php createCheckboxGroup($types); ?> </div>
-          <div class="col-sm-6 pr-5 mt-4"> <?php createCheckboxGroup($extras); ?> </div>
+          <div class="col-sm-6 pl-5 mt-4"> <?php createCheckboxGroup($holiday_types); ?> </div>
+          <div class="col-sm-6 pr-5 mt-4"> <?php createCheckboxGroup($holiday_extras); ?> </div>
         </div>
         <div class="row mt-3">
           <h6 class="mx-auto my-3">Do you want to sign up for the newsletter?</h6>

@@ -3,14 +3,16 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="css/jquery-ui.css">
   <link rel="stylesheet" href="css/bootstrap.css">
   <link rel="stylesheet" href="css/my.css">
   <script src="js/jquery-3.4.1.js"></script>
+  <script src="js/jquery-ui.js"></script>
   <script src="js/popper.js"></script>
   <script src="js/bootstrap.js"></script>
   <script src="js/init.js"></script>
   <title><?php echo "$page_title"; ?></title>
-  </head>
+</head>
 <body class="d-flex flex-column">
   <div class="wrapper container-fluid flex-fill px-5 pb-5 pt-3">
     <h1 class="text-white text-center">Europe Travel Experts<br><small>make your holidays come true...</small></h1>
