@@ -1,9 +1,8 @@
-<?php
+<?php #register_login.php
 
   //title the page, include a header and javascript
   $page_title = "Register/Login";
   include("templates/header.php");
-  echo '<script src="js/register_login.js"></script>';
 
 ?>
 
@@ -14,13 +13,13 @@
       <div class="input-group-prepend">
         <span class="input-group-text">email</span>
       </div>
-      <input type="email" class="form-control">
+      <input type="email" class="form-control" autocomplete="username">
     </div>
     <div class="input-group my-4">
       <div class="input-group-prepend">
         <span class="input-group-text">password</span>
       </div>
-      <input type="password" class="form-control">
+      <input type="password" class="form-control" autocomplete="current-password">
     </div>
     <button type="submit" class="btn btn-primary">Login</button>
   </div>

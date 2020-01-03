@@ -1,13 +1,15 @@
 <?php
 
   function select_one_row($dbc, $table, $id) {
-    $pk_query = "SELECT column_name FROM information_schema.key_column_usage WHERE TABLE_NAME = '$table'";
-    $pk_result = mysqli_query($dbc, $pk_query);
-    if($pk_result) {
-      $pk_name = mysqli_fetch_array($pk_result)[0];
-      $query = "SELECT * FROM $table WHERE $pk_name = '$id'";
-      return @mysqli_query($dbc, $query);
-    }
+    $pk_name = _get_pk_column_name($dbc, $table);
+    $query = "SELECT * FROM $table WHERE $pk_name = '$id'";
+    return @mysqli_query($dbc, $query);
+  }
+
+  function remove_one_row($dbc, $table, $id) {
+    $pk_name = _get_pk_column_name($dbc, $table);
+    $query = "DELETE FROM $table WHERE $pk_name = '$id' LIMIT 1";
+    return @mysqli_query($dbc, $query);
   }
 
   function users_insert($dbc, $data) {
@@ -67,6 +69,15 @@
       return true;
     }
     return false;
+  }
+
+  function _get_pk_column_name($dbc, $table) {
+    $pk_query = "SELECT column_name FROM information_schema.key_column_usage WHERE TABLE_NAME = '$table'";
+    $pk_result = mysqli_query($dbc, $pk_query);
+    if($pk_result) {
+      $pk_name = mysqli_fetch_array($pk_result)[0];
+      return $pk_name;
+    }
   }
 
   //initiate variables used in register form

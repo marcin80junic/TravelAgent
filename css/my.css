@@ -16,15 +16,9 @@ body {
   background-repeat: no-repeat, repeat;
 }
 
-.ui-dialog-titlebar-close {
-  display: none;
-}
-
 .ui-dialog-titlebar {
-  background: red;
+  background: green;
   color: white;
-  font-size: 1.3em;
-  text-align: center;
 }
 
 #dialog-1 {

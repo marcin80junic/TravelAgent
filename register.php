@@ -170,21 +170,21 @@
         <div class="form-group">
           <label for="email" class="pl-1">email:*</label>
           <input type="email" class="form-control" name="email"
-           maxlength="128" placeholder="email"
+           maxlength="128" placeholder="email" autocomplete="username"
            value="<?php if( isset($_POST['email']) ) echo $_POST['email'] ?>" />
         </div>
         <div class="form-group">
           <label for="password" class="pl-1">password:*
             <span id="password_validation">(at least 8 characters)<span></label>
           <input type="password" class="form-control" name="password"
-           maxlength="20" placeholder="password"
+           maxlength="20" placeholder="password" autocomplete="new-password"
            value="<?php if( isset($_POST['password']) ) echo $_POST['password'] ?>" />
         </div>
         <div class="form-group">
           <label for="confirm_password" class="pl-1">confirm password:*
             <span id="confirm_password_validation">(must match the password)<span></label>
           <input type="password" class="form-control" name="confirm_password"
-           maxlength="20" placeholder="confirm password"
+           maxlength="20" placeholder="confirm password" autocomplete="new-password"
            value="<?php if( isset($_POST['confirm_password']) ) echo $_POST['confirm_password'] ?>" />
         </div>
         <div class="form-group">

@@ -1,11 +1,18 @@
-<?php
+<?php #admin.php
 
   //setting up page
   $page_title = "Admin Utility";
   include("templates/header.php");
   echo '<script src="js/admin.js"></script>';
-  echo '<script src="js/admin_modal.js"></script>';
   require("php/mysql_querries.php");
+
+  //function checking was the page scrolled when reloading
+  function check_Offset() {
+    if(isset($_POST['offset'])) {
+      echo $_POST['offset'];
+    }
+    else echo '0';
+  }
 
   //generic function creating table form
   function create_form($data) {
@@ -69,7 +76,7 @@
 ?>
 
 <!--admin interface-->
-<div class="text-center mb-4">
+<div id="interface" class="text-center mb-4">
   <h3>Database Admin Utility</h3>
 
   <form action="admin.php" method="post" class="mt-4">
@@ -89,7 +96,8 @@
         <div class="align-self-end ml-auto d-flex flex-column bg-light p-2">
           <a href="#" class="select_all">select all</a>
           <a href="#" class="clear_all">clear all</a>
-          <button type="submit" name="users_table" class="btn btn-info float-right">show</button>
+          <button type="submit" id="users-form" name="users_table" class="btn btn-info mt-1">show</button>
+          <input class="offset" name="offset" type="hidden" value="<?php check_Offset(); ?>">
         </div>
       </div>
     </fieldset>
@@ -112,7 +120,8 @@
         <div class="align-self-end ml-auto d-flex flex-column bg-light p-2">
           <a href="#" class="select_all">select all</a>
           <a href="#" class="clear_all">clear all</a>
-          <button type="submit" name="newsletter_table" class="btn btn-info mt-1">show</button>
+          <button type="submit" id="newsletter-form" name="newsletter_table" class="btn btn-info mt-1">show</button>
+          <input class="offset" name="offset" type="hidden" value="<?php check_Offset(); ?>">
         </div>
       </div>
     </fieldset>
@@ -120,11 +129,7 @@
 
 </div>
 
-<div id="dialog-1">
-  <iframe id="external-frame" style="border: 0px; " src="" width="100%" height="90%">
-  </iframe>
-</div>
-
+<div id="dialog-1" class="text-center"></div>
 
 <?php
 
