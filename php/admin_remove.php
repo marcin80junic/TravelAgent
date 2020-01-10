@@ -1,8 +1,5 @@
 <?php #admin_remove.php
 
-  require("../../../../../xxsecure/dbconnect.php");
-  require("mysql_querries.php");
-
   if(isset($_GET['table']) && isset($_GET['id'])) {
     $table = $_GET['table'];
     $id = $_GET['id'];
@@ -13,8 +10,11 @@
   }
   else {
     echo '<p>this page has been accessed in error</p>';
-    quit_script();
+    exit();
   }
+
+  require("../../../../../xxsecure/dbconnect.php");
+  require("mysql_querries.php");
 
   if($_SERVER['REQUEST_METHOD'] == 'POST') {
 
@@ -27,16 +27,16 @@
       }
     }
     else {
-      echo '<p class="pt-3">Record has NOT been removed from the database</p>';
+      echo '<p>Record has NOT been removed from the database</p>';
     }
-    echo '<br><br><br><button class="btn btn-info" id="ok" href="../admin.php">Ok</button>';
+    echo '<br><button class="btn btn-info" id="ok" href="../admin.php">Ok</button>';
     mysqli_close($dbconnect);
     exit();
   }
 
 ?>
 
-<p>Are you sure you want to remove the following record<br><br>
+<p>Are you sure you want to remove the following record:<br><br>
   <?php
     if($_SERVER['REQUEST_METHOD'] == 'GET') {
       $result = select_one_row($dbconnect, $table, $id);
@@ -58,6 +58,6 @@
   <input type="hidden" name="table" value="<?php echo $table; ?>">
   <input type="hidden" name="id" value="<?php echo $id; ?>">
   <button type="submit" name="yes" value="yes">Yes</button>
-  <button type="submit" name="no" value="no">No</button>
+  <button type="submit" name="no" value="no" class="ml-2">No</button>
 
 </form>

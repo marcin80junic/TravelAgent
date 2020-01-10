@@ -16,7 +16,7 @@
       require("php/mysql_querries.php");
       $email = mysqli_real_escape_string($dbconnect, trim($_POST['email']));
       if(newsletter_is_unique_email($dbconnect, $email)) {
-        $length = count($holiday_types) + count($holiday_extras);
+        $length = count(NEWSLETTER_DATA);
         for($i=0; $i<$length; $i++) {
           $news[] = 1;
         }

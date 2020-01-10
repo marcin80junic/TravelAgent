@@ -1,7 +1,7 @@
 (function(){
   window.addEventListener("load", ()=>{
-    $firstName = $("[name='first_name']");
-    $lastName = $("[name='last_name']");
+    $firstName = $("[name='f_name']");
+    $lastName = $("[name='l_name']");
     $email = $("[name='email']");
     $password = $("[name='password']");
     $passFeedback = $("#password_validation");

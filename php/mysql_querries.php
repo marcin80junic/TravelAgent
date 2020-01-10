@@ -1,9 +1,24 @@
 <?php
 
+  //general use functions
   function select_one_row($dbc, $table, $id) {
     $pk_name = _get_pk_column_name($dbc, $table);
     $query = "SELECT * FROM $table WHERE $pk_name = '$id'";
     return @mysqli_query($dbc, $query);
+  }
+
+  function update_one_row($dbc, $table, $id, $columns, $data) {
+    $pk_name = _get_pk_column_name($dbc, $table);
+    $query = "UPDATE $table SET ";
+    for($i=0; $i<COUNT($columns); $i++) {
+      if($i == (COUNT($data)-1)) {
+        $query .= "$columns[$i]='$data[$i]' ";
+        break;
+      }
+      $query .= "$columns[$i]='$data[$i]', ";
+    }
+     $query .= "WHERE $pk_name='$id'";
+     return @mysqli_query($dbc, $query);
   }
 
   function remove_one_row($dbc, $table, $id) {
@@ -12,6 +27,7 @@
     return @mysqli_query($dbc, $query);
   }
 
+  //users table specific functions
   function users_insert($dbc, $data) {
     $query = "INSERT INTO users(f_name, l_name, email, password, mobile, date_registered)
               VALUES('$data[0]', '$data[1]', '$data[2]', SHA2('$data[3]', 512), '$data[4]', NOW())";
@@ -20,6 +36,12 @@
 
   function users_select_all($dbc) {
     $query = "SELECT * FROM users";
+    return @mysqli_query($dbc, $query);
+  }
+
+  function users_is_newsletter($dbc, $email) {
+    $query = "SELECT users.email FROM users INNER JOIN newsletter ON
+    users.email = newsletter.email WHERE users.email = '$email'";
     return @mysqli_query($dbc, $query);
   }
 
@@ -44,7 +66,7 @@
     return _is_unique($dbc, $query);
   }
 
-
+  //newsletter table specific functions
   function newsletter_insert($dbc, $email, $data) {
     $query = "INSERT INTO newsletter VALUES('$email', '$data[0]', '$data[1]', '$data[2]',
               '$data[3]', '$data[4]', '$data[5]', '$data[6]', '$data[7]', '$data[8]',
@@ -62,6 +84,7 @@
     return _is_unique($dbc, $query);
   }
 
+  //helper functions for internal use
   function _is_unique($dbc, $query) {
     $response = mysqli_query($dbc, $query);
     $num = mysqli_num_rows($response);
@@ -80,33 +103,54 @@
     }
   }
 
+
   //initiate variables used in register form
 
-  $user_data = array(
-    array("f_name", "first name"),
-    array("l_name", "last name"),
-    array("email", "email"),
-    array("mobile", "mobile number"),
-    array("date_registered", "date registered"),
-    array("last_login", "last login")
+  define("USER_DATA", array(
+    "first name" => "f_name",
+    "last name" => "l_name",
+    "email"  => "email",
+    "password" => "password",
+    "mobile number" => "mobile",
+    "date registered" => "date_registered",
+    "last login" => "last_login")
   );
 
-  $holiday_types = array(
-    array("summer_hol", "summer holidays"),
-    array("city_break", "city breaks"),
-    array("mountains", "mountains"),
-    array("cruise", "cruises"),
-    array("tour_hol", "tour holidays")
+  define("HOLIDAY_TYPES", array(
+    "summer holidays" => "summer_hol",
+    "city breaks" => "city_break",
+    "mountains" => "mountains",
+    "cruises" => "cruise",
+    "tour holidays" => "tour_hol")
   );
 
-  $holiday_extras = array(
-    array("beach", "next to beach"),
-    array("swimming_pool", "swimming pool"),
-    array("aquapark", "aquapark"),
-    array("surfing", "surfing"),
-    array("skiing", "skiing"),
-    array("gym_fitness", "gym/fitness facilities")
+  define("HOLIDAY_EXTRAS", array(
+    "next to beach" => "beach",
+    "swimming pool" => "swimming_pool",
+    "aquapark" => "aquapark",
+    "surfing" => "surfing",
+    "skiing" => "skiing",
+    "gym/fitness facilities" => "gym_fitness")
   );
 
+  define("NEWSLETTER_DATA", array_merge(HOLIDAY_TYPES, HOLIDAY_EXTRAS));
+
+  define("EDIT_IGNORE", array("date registered", "last login"));
+
+  $current_type;
+  $current_data;
+
+  function set_current_data($table_name) {
+    switch ($table_name) {
+      case "users":
+        $GLOBALS['current_data'] = USER_DATA;
+        $GLOBALS['current_type'] = "text";
+        break;
+      case "newsletter":
+        $GLOBALS['current_data'] = NEWSLETTER_DATA;
+        $GLOBALS['current_type'] = "checkbox";
+        break;
+    }
+  }
 
 ?>
