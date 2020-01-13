@@ -8,14 +8,13 @@ $(function() {
                  title: ""
                 });
 
-  function makeRequest(address, p_data) {
+  function action_dialog(address, p_data) {
     var xhr = new XMLHttpRequest();
     if(p_data) {
       var data_query = address+"&"+p_data;
       xhr.open('POST', address, true);
       xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
       xhr.send(data_query);
-  //    alert("POST: "+data_query);
     } else {
       xhr.open('GET', address, true);
       xhr.send(null);
@@ -45,7 +44,6 @@ $(function() {
             xhr2.open('POST', address, true);
             xhr2.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
             xhr2.send(postData);
-      //      alert("POST: "+postData);
             xhr2.onload = function() {
               if(xhr2.status === 200) {
                 $dialog.dialog("option", "title", "action submitted");
@@ -58,8 +56,7 @@ $(function() {
                 });
               }
               else {
-          //      alert("making another request");
-                makeRequest(address, postData);
+                action_dialog(address, postData);
               }
             };
           });
@@ -75,7 +72,7 @@ $(function() {
     var table = address.substring(address.indexOf("=")+1, address.indexOf("&"));
     $dialog.dialog("option", "title", title);
     $dialog.dialog("option", "height", height);
-    makeRequest(address);
+    action_dialog(address);
   }
 
   $(".remove").on("click", (e)=> {
@@ -91,8 +88,6 @@ $(function() {
 (function() {
 
   $(document).ready(()=>{
-  //alert("refreshed");
-    window.scrollTo(0, $('.offset').val());
 
     $('.select_all').on('click', (e)=>{
       e.preventDefault();
@@ -103,15 +98,40 @@ $(function() {
     $('.clear_all').on('click', (e)=>{
       e.preventDefault();
       $this = $(e.target);
-      $this.parent().parent().find('input:checkbox').prop('checked', false);
+      $this.parent().parent().find("input:checkbox").prop("checked", false);
     });
 
-    $('[id$=form]').on('click', ()=>{
-      var offsetY = $("#interface").offset().top + $("#interface").height() - $('.sticky-top').height();
-      if($(".offset").val() < offsetY) {
-        $(".offset").val(offsetY);
-      };
+    $("form").on("submit", (e)=>{
+      e.preventDefault();
+      var tableName = $(e.target).find('input[name="table_name"]').val();
+      var postData = $(e.target).serialize();
+      $.post("php/admin_table.php", postData, (data)=>{
+        tablePostCallback(data, tableName);
+      });
     });
+
+    function tablePostCallback(data, tableName) {
+      $("#table").html(data);
+      window.scrollTo(0, $("#table").offset().top - $(".sticky-top").height());
+      $("#table a").on('click', (e)=>{
+        e.preventDefault();
+        var getData = e.target.href? e.target.href: $(e.target).parent().prop("href");
+        getData = getData.substring(getData.lastIndexOf("/")+1);
+        $.get("php/admin_table.php", getData, function(data) {
+          tablePostCallback(data, tableName);
+        });
+      });
+      $("#display").on("change", (e)=>{
+        var display = $("#display").val();
+        $("#"+tableName+"_display").val(display);
+        var getData = $("#href").val();
+        getData = getData.replace(/(?<=display\=)(.*?)(?=\&)/, display);
+        $.get("php/admin_table.php", getData, function(data) {
+          tablePostCallback(data, tableName);
+        });
+      });
+    }
 
   });
+
 }());

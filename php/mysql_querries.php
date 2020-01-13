@@ -1,9 +1,25 @@
 <?php
 
   //general use functions
+  function count_num_of_rows($dbc, $table) {
+    $pk_name = _get_pk_column_name($dbc, $table);
+    $query = "SELECT COUNT($pk_name) FROM $table";
+    return @mysqli_query($dbc, $query);
+  }
+
   function select_one_row($dbc, $table, $id) {
     $pk_name = _get_pk_column_name($dbc, $table);
     $query = "SELECT * FROM $table WHERE $pk_name = '$id'";
+    return @mysqli_query($dbc, $query);
+  }
+
+  function select_all_rows($dbc, $table) {
+    $query = "SELECT * FROM $table";
+    return @mysqli_query($dbc, $query);
+  }
+
+  function select_num_rows_sorted($dbc, $table, $sort, $start, $display) {
+    $query = "SELECT * FROM $table ORDER BY $sort LIMIT $start, $display";
     return @mysqli_query($dbc, $query);
   }
 
@@ -31,11 +47,6 @@
   function users_insert($dbc, $data) {
     $query = "INSERT INTO users(f_name, l_name, email, password, mobile, date_registered)
               VALUES('$data[0]', '$data[1]', '$data[2]', SHA2('$data[3]', 512), '$data[4]', NOW())";
-    return @mysqli_query($dbc, $query);
-  }
-
-  function users_select_all($dbc) {
-    $query = "SELECT * FROM users";
     return @mysqli_query($dbc, $query);
   }
 
@@ -74,11 +85,6 @@
     return @mysqli_query($dbc, $query);
   }
 
-  function newsletter_select_all($dbc) {
-    $query = "SELECT * FROM newsletter";
-    return @mysqli_query($dbc, $query);
-  }
-
   function newsletter_is_unique_email ($dbc, $email) {
     $query = "SELECT email FROM newsletter WHERE email='$email'";
     return _is_unique($dbc, $query);
@@ -107,6 +113,7 @@
   //initiate variables used in register form
 
   define("USER_DATA", array(
+    "user id" => "user_id",
     "first name" => "f_name",
     "last name" => "l_name",
     "email"  => "email",
@@ -133,7 +140,7 @@
     "gym/fitness facilities" => "gym_fitness")
   );
 
-  define("NEWSLETTER_DATA", array_merge(HOLIDAY_TYPES, HOLIDAY_EXTRAS));
+  define("NEWSLETTER_DATA", array_merge(array("email" => "email"), HOLIDAY_TYPES, HOLIDAY_EXTRAS));
 
   define("EDIT_IGNORE", array("date registered", "last login"));
 
