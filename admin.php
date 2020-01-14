@@ -67,7 +67,7 @@
 
 </div>
 
-<div id="table"></div>
+<div id="table" class="bg-info"></div>
 
 <div id="dialog-1" class="text-center pt-3"></div>
 

@@ -13,6 +13,21 @@
     return @mysqli_query($dbc, $query);
   }
 
+  function select_one_row_selected($dbc, $table, $data, $id) {
+    $pk_name = _get_pk_column_name($dbc, $table);
+    $query = 'SELECT ';
+    $length = COUNT($data);
+    for($i = 0; $i < $length; $i++) {
+      if($i == $length - 1) {
+        $query .= "$data[$i] ";
+      } else {
+        $query .= "$data[$i], ";
+      }
+    }
+    $query .= "FROM $table WHERE $pk_name='$id'";
+    return @mysqli_query($dbc, $query);
+  }
+
   function select_all_rows($dbc, $table) {
     $query = "SELECT * FROM $table";
     return @mysqli_query($dbc, $query);
@@ -26,14 +41,15 @@
   function update_one_row($dbc, $table, $id, $columns, $data) {
     $pk_name = _get_pk_column_name($dbc, $table);
     $query = "UPDATE $table SET ";
-    for($i=0; $i<COUNT($columns); $i++) {
-      if($i == (COUNT($data)-1)) {
+    $length = COUNT($columns);
+    for($i=0; $i<$length; $i++) {
+      if($i == ($length-2)) {
         $query .= "$columns[$i]='$data[$i]' ";
         break;
       }
       $query .= "$columns[$i]='$data[$i]', ";
     }
-     $query .= "WHERE $pk_name='$id'";
+     $query .= "WHERE $pk_name = '$id'";
      return @mysqli_query($dbc, $query);
   }
 
@@ -56,21 +72,6 @@
     return @mysqli_query($dbc, $query);
   }
 
-/*
-  function users_select($dbc, $data) {
-    $query = 'SELECT ';
-    $length = COUNT($data);
-    for($i = 0; $i < $length; $i++) {
-      if($i == $length - 1) {
-        $query .= "$data[$i] ";
-      } else {
-        $query .= "$data[$i], ";
-      }
-    }
-    $query .= "FROM users";
-    return @mysqli_query($dbc, $query);
-  }
-*/
 
   function users_is_unique_email($dbc, $email) {
     $query = "SELECT email FROM users WHERE email='$email'";
@@ -142,7 +143,7 @@
 
   define("NEWSLETTER_DATA", array_merge(array("email" => "email"), HOLIDAY_TYPES, HOLIDAY_EXTRAS));
 
-  define("EDIT_IGNORE", array("date registered", "last login"));
+  define("EDIT_IGNORE", array("user id", "date registered", "last login"));
 
   $current_type;
   $current_data;

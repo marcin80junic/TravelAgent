@@ -59,9 +59,9 @@
       $col_href = "{$plain_href}pages=$pages&sort=";
 
       //create and display a table
-      echo '<h3 class="text-center mb-3">'.$table_name.'</h3>';
+      echo '<h3 class="text-center py-3">'.$table_name.'</h3>';
       echo '<div class="overflow-auto"><table width="100%" class="table-bordered table-info mx-auto">
-            <thead class="thead-dark"><tr><th>#</th>';
+            <thead id="admin-table-head"><tr><th>#</th>';
       //display table headers..
       foreach($table_headers as $key => $header) {
         if($header != "password") {
@@ -90,8 +90,8 @@
         $key = $row[0];
         //insert 'actions' column with admin actions
         echo '<td align="center"><form action="admin.php" method="get">
-              <a href="php/admin_edit.php?table='.$table.'&id='.$key.'" class="edit">edit</a>
-              <a href="php/admin_remove.php?table='.$table.'&id='.$key.'" class="remove ml-2">
+              <a href="php/admin_edit.php?table='.$table_name.'&id='.$key.'" class="edit">edit</a>
+              <a href="php/admin_remove.php?table='.$table_name.'&id='.$key.'" class="remove ml-2">
               remove</a></form></td></tr>';
       }
       echo '</tbody></table></div>';
@@ -101,7 +101,7 @@
       $prev_disabled = ($current_page == 1);
       $next_disabled = ($current_page == $pages);
       $button_href = $col_href.$sort;
-      echo '<br><div class="float-left">';
+      echo '<br><div id="table-navigation" class="d-inline-block m-1">';
       //previous button
       echo '<a href="'.$button_href.'&start='.($start-$display).'"><button';
       if($prev_disabled) echo ' disabled="disabled"';
@@ -142,7 +142,7 @@
 ?>
 
 <!--creation of drop down options for display-->
-<div class="float-right">
+<div class="d-inline-block float-right mr-1 mt-2">
   <span>Display per page: </span>
   <select name="display" id="display">
     <option value="5" <?php if($display==="5") echo 'selected="selected"';?> >5</option>
@@ -151,5 +151,5 @@
     <option value="20" <?php if($display==="20") echo 'selected="selected"';?> >20</option>
     <option value="25" <?php if($display==="25") echo 'selected="selected"';?> >25</option>
     <option value="50" <?php if($display==="50") echo 'selected="selected"';?> >50</option>
-  </select>';
+  </select>
 </div>

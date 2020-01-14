@@ -3,7 +3,7 @@
   //declare variables
   $reg_errors = $edit_errors = $reg_data = $news = [];
   $email = $pass = "";
-  $email_unique = $privacy = $newsletter = false;
+  $email_unique = $privacy = false;
 
   //validate all form fields and record all errors
   if(isset($_POST['f_name'])) {
@@ -71,18 +71,8 @@
     $privacy = true;
   }
 
-  if(isset($_POST['newsletter'])) {
-    $newsletter = ($_POST['newsletter'] == "Yes")? true: false;
-  }
-
-  if(isset($_POST['edit_newsletter'])) {
-    $newsletter = $_POST['edit_newsletter'];
-  }
-
   foreach(NEWSLETTER_DATA as $value) {
-    if(isset($_POST[$value])) {
-      $news[] = ($_POST[$value] == "false")? 0: 1;
-    }
+    $news[] = isset($_POST[$value])? "true": "false";
   }
 
 ?>

@@ -1,91 +1,6 @@
 
+
 $(function() {
-
-  var $dialog = $('#dialog-1').dialog({
-                 autoOpen: false,
-                 modal: true,
-                 width: 500,
-                 title: ""
-                });
-
-  function action_dialog(address, p_data) {
-    var xhr = new XMLHttpRequest();
-    if(p_data) {
-      var data_query = address+"&"+p_data;
-      xhr.open('POST', address, true);
-      xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-      xhr.send(data_query);
-    } else {
-      xhr.open('GET', address, true);
-      xhr.send(null);
-    }
-    xhr.onload = function() {
-      if(xhr.status === 200) {
-        $dialog.dialog("open");
-        $dialog.html(xhr.responseText);
-        var table = $('[name="table"]').val();
-        var $buttons = $('#decision [type="submit"]');
-        if($buttons) {
-          $buttons.on("click", (e)=> {
-            e.preventDefault();
-            var decision = $(e.target).val();
-            var postData = decision+"="+decision;
-            var $textInputs = $(e.target).parents("form").find("input").filter(":not(:checkbox)");
-            var $checkboxes = $(e.target).parents("form").find("input:checkbox");
-            $textInputs.each(function(i) {
-              var $text = $(this);
-              postData += "&"+$text.prop("name")+"="+$text.val();
-            });
-            $checkboxes.each(function(i) {
-              var $box = $(this);
-              postData += "&"+$box.prop("name")+"="+$box.is(":checked");
-            });
-            var xhr2 = new XMLHttpRequest();
-            xhr2.open('POST', address, true);
-            xhr2.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-            xhr2.send(postData);
-            xhr2.onload = function() {
-              if(xhr2.status === 200) {
-                $dialog.dialog("option", "title", "action submitted");
-                $dialog.dialog("option", "height", "250");
-                $dialog.html(xhr2.responseText);
-                $('#ok').on("click", ()=> {
-                  $('.offset').val(window.pageYOffset);
-                  $dialog.dialog("close");
-                  $('#'+table+'-form').click();
-                });
-              }
-              else {
-                action_dialog(address, postData);
-              }
-            };
-          });
-        }
-      }
-    };
-  }
-
-  function display_dialog(e, title, height) {
-    e.preventDefault();
-    var $this = $(e.target);
-    var address = $this.attr("href");
-    var table = address.substring(address.indexOf("=")+1, address.indexOf("&"));
-    $dialog.dialog("option", "title", title);
-    $dialog.dialog("option", "height", height);
-    action_dialog(address);
-  }
-
-  $(".remove").on("click", (e)=> {
-    display_dialog(e, "confirm remove", "250");
-  });
-
-  $(".edit").on("click", (e)=> {
-    display_dialog(e, "edit record", "440");
-  });
-
-});
-
-(function() {
 
   $(document).ready(()=>{
 
@@ -105,22 +20,37 @@ $(function() {
       e.preventDefault();
       var tableName = $(e.target).find('input[name="table_name"]').val();
       var postData = $(e.target).serialize();
-      $.post("php/admin_table.php", postData, (data)=>{
-        tablePostCallback(data, tableName);
+      $.ajax({
+        url: "php/admin_table.php",
+        data: postData,
+        type: "post",
+        success: (data)=>{
+          tablePostCallback(data, tableName);
+        }
       });
     });
 
+    //recursive function setting up admin table listeners
     function tablePostCallback(data, tableName) {
       $("#table").html(data);
       window.scrollTo(0, $("#table").offset().top - $(".sticky-top").height());
-      $("#table a").on('click', (e)=>{
+
+      //listener for table headers sorting links
+      $("#admin-table-head a, #table-navigation a").on('click', (e)=>{
         e.preventDefault();
         var getData = e.target.href? e.target.href: $(e.target).parent().prop("href");
         getData = getData.substring(getData.lastIndexOf("/")+1);
-        $.get("php/admin_table.php", getData, function(data) {
-          tablePostCallback(data, tableName);
+        $.ajax({
+          url: "php/admin_table.php",
+          data: getData,
+          type: "get",
+          success: (data)=>{
+            tablePostCallback(data, tableName);
+          }
         });
       });
+
+      //listener for select box changing number of rows per page
       $("#display").on("change", (e)=>{
         var display = $("#display").val();
         $("#"+tableName+"_display").val(display);
@@ -130,8 +60,81 @@ $(function() {
           tablePostCallback(data, tableName);
         });
       });
+
+      //listeners for edit and remove record links
+      $(".remove").on("click", (e)=>{
+        display_dialog(e, "confirm remove", "250");
+      });
+      $(".edit").on("click", (e)=>{
+        display_dialog(e, "edit record", "440");
+      });
+      $
+    }
+
+    //initialize dialog window object used for editing and removing records
+    var $dialog = $('#dialog-1').dialog({
+      autoOpen: false,
+      modal: true,
+      width: 500,
+    });
+
+    function display_dialog(e, title, height) {
+      e.preventDefault();
+      var href = e.target.href? e.target.href: e.target.parentElement.href;
+      var address = href.substring(0, href.indexOf("?"));
+      var data = href.substring(href.indexOf("?")+1);
+      var type = (data.indexOf("no=no") == -1)? "get": "post";
+      $dialog.dialog("option", "title", title);
+      $dialog.dialog("option", "height", height);
+      $.ajax({
+        url: address,
+        data: data,
+        type: type,
+        success: function(data) {
+          dialogCallback(data, address);
+          addListeners();
+        }
+      });
+    }
+
+    function addListeners() {
+      $("#cancel").on("click", (e)=>{
+        display_dialog(e, "action cancelled", "200");
+      });
+      var $okButton = $("#ok");
+      if ($okButton.length > 0){
+        $dialog.dialog("option", "height", "200");
+        $okButton.on("click", ()=>{
+          $dialog.dialog("close");
+          var tableName = $("#table h3").text();
+          $('[name="'+tableName+'"]').click();
+        });
+      } else if ($("#confirm-remove").length > 0) {
+        $dialog.dialog("option", "height", "250");
+      } else {
+        $dialog.dialog("option", "height", "500");
+      }
+    }
+
+    function dialogCallback(data, address) {
+      $dialog.html(data);
+      $dialog.dialog("open");
+
+      //add event listener on form
+      $('#decision').on("submit", (e)=> {
+        e.preventDefault();
+        var postData = $(e.target).serialize();
+        $.ajax({
+          url: address,
+          type: "post",
+          data: postData,
+          success: function(data) {
+            dialogCallback(data, address);
+            addListeners();
+          }
+        });
+      });
     }
 
   });
-
 }());
