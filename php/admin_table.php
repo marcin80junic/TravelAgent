@@ -54,7 +54,7 @@
   //if 1 or more checkboxes were checked retrieve number of records from the database
   if(COUNT($db_columns) > 0) {
     $result = select_num_rows_sorted($dbconnect, $table_name, $sort, $start, $display);
-    if($result) {
+    if ($result) {
       $plain_href = "table_name=$table_name&display=$display&{$get_query}";
       $col_href = "{$plain_href}pages=$pages&sort=";
 
@@ -101,7 +101,7 @@
       $prev_disabled = ($current_page == 1);
       $next_disabled = ($current_page == $pages);
       $button_href = $col_href.$sort;
-      echo '<br><div id="table-navigation" class="d-inline-block m-1">';
+      echo '<div class="d-flex justify-content-between pb-1 m-1"><div id="table-navigation" class="">';
       //previous button
       echo '<a href="'.$button_href.'&start='.($start-$display).'"><button';
       if($prev_disabled) echo ' disabled="disabled"';
@@ -136,20 +136,27 @@
     echo '<h3 class="text-center mb-3">'.$table_name.'</h3>';
     echo '<p class="text-center text-danger">No data selected!</p>';
     mysqli_close($dbconnect);
-    exit();
   }
 
 ?>
 
-<!--creation of drop down options for display-->
-<div class="d-inline-block float-right mr-1 mt-2">
-  <span>Display per page: </span>
-  <select name="display" id="display">
-    <option value="5" <?php if($display==="5") echo 'selected="selected"';?> >5</option>
-    <option value="10" <?php if($display==="10") echo 'selected="selected"';?> >10</option>
-    <option value="15" <?php if($display==="15") echo 'selected="selected"';?> >15</option>
-    <option value="20" <?php if($display==="20") echo 'selected="selected"';?> >20</option>
-    <option value="25" <?php if($display==="25") echo 'selected="selected"';?> >25</option>
-    <option value="50" <?php if($display==="50") echo 'selected="selected"';?> >50</option>
-  </select>
+  <!--add new records button -->
+  <div>
+    <a href="php/admin_add.php?table=<?php echo $table_name; ?>">
+      <button id="add-record">Add Record</button>
+    </a>
+  </div>
+
+  <!--creation of drop down options for display-->
+  <div class="pt-1">
+    <span>Display per page: </span>
+    <select name="display" id="display">
+      <option value="5" <?php if($display==="5") echo 'selected="selected"';?> >5</option>
+      <option value="10" <?php if($display==="10") echo 'selected="selected"';?> >10</option>
+      <option value="15" <?php if($display==="15") echo 'selected="selected"';?> >15</option>
+      <option value="20" <?php if($display==="20") echo 'selected="selected"';?> >20</option>
+      <option value="25" <?php if($display==="25") echo 'selected="selected"';?> >25</option>
+      <option value="50" <?php if($display==="50") echo 'selected="selected"';?> >50</option>
+    </select>
+  </div>
 </div>

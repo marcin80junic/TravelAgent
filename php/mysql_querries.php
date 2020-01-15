@@ -43,13 +43,13 @@
     $query = "UPDATE $table SET ";
     $length = COUNT($columns);
     for($i=0; $i<$length; $i++) {
-      if($i == ($length-2)) {
-        $query .= "$columns[$i]='$data[$i]' ";
+      if($i == ($length-1)) {
+        $query .= "$columns[$i]=$data[$i] ";
         break;
       }
-      $query .= "$columns[$i]='$data[$i]', ";
+      $query .= "$columns[$i]=$data[$i], ";
     }
-     $query .= "WHERE $pk_name = '$id'";
+     $query .= "WHERE $pk_name=$id";
      return @mysqli_query($dbc, $query);
   }
 
@@ -110,10 +110,8 @@
     }
   }
 
-
-  //initiate variables used in register form
-
-  define("USER_DATA", array(
+  //initialize constants
+  define("USER_COLUMNS", array(
     "user id" => "user_id",
     "first name" => "f_name",
     "last name" => "l_name",
@@ -123,7 +121,15 @@
     "date registered" => "date_registered",
     "last login" => "last_login")
   );
-
+  define("HOLIDAYS_COLUMNS", array(
+    "holiday id" => "id",
+    "country" => "country",
+    "days" => "length",
+    "hotel" => "hotel",
+    "price" => "price",
+    "available from" => "date_from",
+    "available until" => "date_to")
+  );
   define("HOLIDAY_TYPES", array(
     "summer holidays" => "summer_hol",
     "city breaks" => "city_break",
@@ -131,7 +137,6 @@
     "cruises" => "cruise",
     "tour holidays" => "tour_hol")
   );
-
   define("HOLIDAY_EXTRAS", array(
     "next to beach" => "beach",
     "swimming pool" => "swimming_pool",
@@ -140,23 +145,36 @@
     "skiing" => "skiing",
     "gym/fitness facilities" => "gym_fitness")
   );
+  define("NEWSLETTER_COLUMNS", array_merge(array("email" => "email"), HOLIDAY_TYPES, HOLIDAY_EXTRAS));
 
-  define("NEWSLETTER_DATA", array_merge(array("email" => "email"), HOLIDAY_TYPES, HOLIDAY_EXTRAS));
+  //create associative array with table names and corresponding constant arrays
+  define("TABLES", array(
+    "users" => USER_COLUMNS,
+    "holidays" => HOLIDAYS_COLUMNS,
+    "newsletter" => NEWSLETTER_COLUMNS)
+  );
 
-  define("EDIT_IGNORE", array("user id", "date registered", "last login"));
+  //define values which shouldn't be displayed by editing or registering forms
+  define("EDIT_IGNORE", array("id", "user id", "date registered", "last login"));
 
-  $current_type;
+  //set up current_data variable for use by other scripts,
+  // also choose type of html inputs according to the current_data
   $current_data;
+  $current_type;
 
   function set_current_data($table_name) {
     switch ($table_name) {
       case "users":
-        $GLOBALS['current_data'] = USER_DATA;
+        $GLOBALS['current_data'] = USER_COLUMNS;
         $GLOBALS['current_type'] = "text";
         break;
       case "newsletter":
-        $GLOBALS['current_data'] = NEWSLETTER_DATA;
+        $GLOBALS['current_data'] = NEWSLETTER_COLUMNS;
         $GLOBALS['current_type'] = "checkbox";
+        break;
+      case "holidays":
+        $GLOBALS['current_data'] = HOLIDAYS_COLUMNS;
+        $GLOBALS['current_type'] = "text";
         break;
     }
   }

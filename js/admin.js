@@ -7,13 +7,20 @@ $(function() {
     $('.select_all').on('click', (e)=>{
       e.preventDefault();
       $this = $(e.target);
-      $this.parent().parent().find('input:checkbox').prop('checked', true);
+      $this.parent().parent().parent().find('input:checkbox').prop('checked', true);
     });
 
     $('.clear_all').on('click', (e)=>{
       e.preventDefault();
       $this = $(e.target);
-      $this.parent().parent().find("input:checkbox").prop("checked", false);
+      $this.parent().parent().parent().find("input:checkbox").prop("checked", false);
+    });
+
+    //initialize dialog window object used for editing and removing records
+    var $dialog = $('#dialog-1').dialog({
+      autoOpen: false,
+      modal: true,
+      width: 500,
     });
 
     $("form").on("submit", (e)=>{
@@ -49,7 +56,6 @@ $(function() {
           }
         });
       });
-
       //listener for select box changing number of rows per page
       $("#display").on("change", (e)=>{
         var display = $("#display").val();
@@ -60,7 +66,10 @@ $(function() {
           tablePostCallback(data, tableName);
         });
       });
-
+      //listener for add record button
+      $("#add-record").on("click", (e)=>{
+        display_dialog(e, "add new record", "500");
+      });
       //listeners for edit and remove record links
       $(".remove").on("click", (e)=>{
         display_dialog(e, "confirm remove", "250");
@@ -68,15 +77,7 @@ $(function() {
       $(".edit").on("click", (e)=>{
         display_dialog(e, "edit record", "440");
       });
-      $
     }
-
-    //initialize dialog window object used for editing and removing records
-    var $dialog = $('#dialog-1').dialog({
-      autoOpen: false,
-      modal: true,
-      width: 500,
-    });
 
     function display_dialog(e, title, height) {
       e.preventDefault();
@@ -94,6 +95,25 @@ $(function() {
           dialogCallback(data, address);
           addListeners();
         }
+      });
+    }
+
+    function dialogCallback(data, address) {
+      $dialog.html(data);
+      $dialog.dialog("open");
+      //add event listener on form
+      $('#decision').on("submit", (e)=> {
+        e.preventDefault();
+        var postData = $(e.target).serialize();
+        $.ajax({
+          url: address,
+          type: "post",
+          data: postData,
+          success: function(data) {
+            dialogCallback(data, address);
+            addListeners();
+          }
+        });
       });
     }
 
@@ -115,26 +135,5 @@ $(function() {
         $dialog.dialog("option", "height", "500");
       }
     }
-
-    function dialogCallback(data, address) {
-      $dialog.html(data);
-      $dialog.dialog("open");
-
-      //add event listener on form
-      $('#decision').on("submit", (e)=> {
-        e.preventDefault();
-        var postData = $(e.target).serialize();
-        $.ajax({
-          url: address,
-          type: "post",
-          data: postData,
-          success: function(data) {
-            dialogCallback(data, address);
-            addListeners();
-          }
-        });
-      });
-    }
-
   });
 }());

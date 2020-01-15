@@ -50,7 +50,7 @@
     $id = $_REQUEST['id'];
   } else {
     echo '<p>this page has been accessed in error</p>';
-    close_script();
+    close_script($dbconnect);
   }
   //and set up the script
   set_current_data($table);
@@ -112,7 +112,7 @@
             ($orig_newsletter == "1" && $newsletter == "")) {
           if ($newsletter == "on") {
             if (newsletter_is_unique_email($dbconnect, $email)) {
-              $length = count(NEWSLETTER_DATA);
+              $length = count(NEWSLETTER_COLUMNS);
               for($i=0; $i<$length; $i++) {
                 $news_data[] = 1;
               }
@@ -135,7 +135,7 @@
         }
       }
       elseif($table == "newsletter") {
-
+        $id = "'".$id."'";
         $query_result = update_one_row($dbconnect, $table, $id, $db_columns, $news);
         report_query($dbconnect);
       }

@@ -8,7 +8,7 @@
   //validate all form fields and record all errors
   if(isset($_POST['f_name'])) {
     if(!empty($_POST['f_name'])) {
-      $reg_data[] = mysqli_real_escape_string($dbconnect, trim($_POST['f_name']));
+      $reg_data[] = "'".mysqli_real_escape_string($dbconnect, trim($_POST['f_name']))."'";
     } else {
       $edit_errors[] = $reg_errors[] = "Fill in first name please!";
     }
@@ -16,7 +16,7 @@
 
   if(isset($_POST['l_name'])) {
     if(!empty($_POST['l_name'])) {
-      $reg_data[] = mysqli_real_escape_string($dbconnect, trim($_POST['l_name']));
+      $reg_data[] = "'".mysqli_real_escape_string($dbconnect, trim($_POST['l_name']))."'";
     } else {
       $edit_errors[] = $reg_errors[] = "Fill in last name please!";
     }
@@ -24,7 +24,8 @@
 
   if (isset($_POST['email'])) {
     if (!empty($_POST['email'])) {
-      $reg_data[] = $email = mysqli_real_escape_string($dbconnect, trim($_POST['email']));
+      $email = mysqli_real_escape_string($dbconnect, trim($_POST['email']));
+      $reg_data[] = "'".$email."'";
       $email_unique = users_is_unique_email($dbconnect, $email);
       if (!$email_unique) {
         $reg_errors[] = "this email address is already in our database!";
@@ -71,8 +72,10 @@
     $privacy = true;
   }
 
-  foreach(NEWSLETTER_DATA as $value) {
-    $news[] = isset($_POST[$value])? "true": "false";
+  foreach(NEWSLETTER_COLUMNS as $value) {
+    if ($value !== "email") {
+      $news[] = isset($_POST[$value])? "true": "false";
+    }
   }
 
 ?>
