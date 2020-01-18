@@ -23,7 +23,7 @@
   if($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     //open connection to the database
-    require("../../../../xxsecure/dbconnect.php");
+    require("../../../xxsecure/dbconnect.php");
     require("php/form_validation.php");
 
     //check if agreed to the privacy policy

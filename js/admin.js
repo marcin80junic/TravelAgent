@@ -1,7 +1,7 @@
 
 
 $(function() {
-
+//  alert("jow");
   $(document).ready(()=>{
 
     $('.select_all').on('click', (e)=>{

@@ -14,7 +14,7 @@
   }
 
   //set up the script
-  require("../../../../../xxsecure/dbconnect.php");
+  require("../../../../xxsecure/dbconnect.php");
   require("mysql_querries.php");
   set_current_data($table_name);
 
@@ -32,4 +32,16 @@
   }
 
   //create a sticky form
-  echo "hello!";
+  echo '<form enctype="multipart/form-data" action="admin_add.php" method="post">
+          <p>Please fill in details for new '.$table_name.' record';
+
+  $current_data = ignore_values($current_data);
+  create_table_form($table_name, $current_data, $current_type);
+
+  echo '<button type="submit" name="yes" value="yes">Add</button>
+        <a href="php/admin_edit.php?no=no">
+          <button id="cancel" name="no" value="no" class="ml-2">Cancel</button>
+        </a>
+      </form>';
+
+  ?>

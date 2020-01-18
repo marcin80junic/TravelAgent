@@ -29,6 +29,12 @@ body {
   color: white;
 }
 
+.ui-dialog-titlebar-close {
+  background-image: url("images/ui-icons_777620_256x240.png");
+  background-repeat: no-repeat;
+  background-position: -97px -128px;
+}
+
 #dialog-1 {
 
 }
@@ -37,6 +43,15 @@ table th {
   text-align: center;
 }
 
-.admin-edit-table td {
-  padding: .4em 0 0 .5em;
+td {
+  padding: .3em .3em 0 .3em;
+  vertical-align: baseline;
+}
+
+.left {
+  text-align: right;
+}
+
+.right {
+  text-align: left;
 }

@@ -43,6 +43,10 @@
     $query = "UPDATE $table SET ";
     $length = COUNT($columns);
     for($i=0; $i<$length; $i++) {
+      if ($columns[$i] === "password") {
+        $query .= "$columns[$i]=SHA2('$data[$i]', 512), ";
+        continue;
+      }
       if($i == ($length-1)) {
         $query .= "$columns[$i]=$data[$i] ";
         break;
@@ -112,7 +116,7 @@
 
   //initialize constants
   define("USER_COLUMNS", array(
-    "user id" => "user_id",
+    "id" => "id",
     "first name" => "f_name",
     "last name" => "l_name",
     "email"  => "email",
@@ -122,10 +126,11 @@
     "last login" => "last_login")
   );
   define("HOLIDAYS_COLUMNS", array(
-    "holiday id" => "id",
+    "id" => "id",
     "country" => "country",
-    "days" => "length",
+    "image path" => "image",
     "hotel" => "hotel",
+    "days" => "length",
     "price" => "price",
     "available from" => "date_from",
     "available until" => "date_to")
@@ -155,7 +160,21 @@
   );
 
   //define values which shouldn't be displayed by editing or registering forms
-  define("EDIT_IGNORE", array("id", "user id", "date registered", "last login"));
+  define("EDIT_IGNORE", array("id", "date registered", "last login", "image path"));
+
+  //function returning array cleared from ignored values
+  function ignore_values($array) {
+    $pure = [];
+    foreach($array as $key => $val) {
+      foreach(EDIT_IGNORE as $ign) {
+        if($key === $ign) {
+          continue 2;
+        }
+      }
+      $pure[$key] = $val;
+    }
+    return $pure;
+  }
 
   //set up current_data variable for use by other scripts,
   // also choose type of html inputs according to the current_data
@@ -178,5 +197,92 @@
         break;
     }
   }
+
+  function create_table_form($table, $cols, $type, $orig_data=false) {
+
+    function get_value($key, $orig_data) {
+      if($_SERVER['REQUEST_METHOD'] === 'GET' && $orig_data !== false && isset($orig_data[$key])) {
+        return $orig_data[$key];
+      }
+      if (isset($_POST[$key]) && !empty($_POST[$key])) {
+        return trim($_POST[$key]);
+      }
+      else return "";
+    }
+
+    echo '<table width="90%" class="form-table">
+            <thead>
+              <tr><th></th><th width="50%"></th></tr>
+            </thead>
+            <tbody>';
+
+    foreach($cols as $desc => $column) {
+      $inp_type = $type;
+      if ($desc === "email" && $table === "newsletter") {
+        $inp_type = "email";
+      }
+      if ($desc === "password") {
+        $inp_type = "password";
+      }
+      echo '<tr>
+              <td class="left">
+                <label for="'.$column.'">'.$desc.'</label>
+              </td>
+              <td class="right">
+                <input type="'.$inp_type.'" name="'.$column.'"
+                  value="'.get_value($column, $orig_data).'" id="'.$column.'" ';
+                  if ($inp_type != "checkbox") {
+                    echo ' value="'.get_value($column, $orig_data).'"';
+                  }
+                  if ($inp_type == "checkbox" && get_value($column, $orig_data) == 1) {
+                    echo ' checked="true"';
+                  }
+      echo        '></td></tr>';
+      if ($inp_type === "password") {
+        echo '<tr>
+                <td class="left">
+                  <label for="confirm-'.$column.'">confirm '.$desc.'</label>
+                </td>
+                <td class="right">
+                  <input type="'.$inp_type.'" name="confirm_'.$column.'"
+                    value="'.get_value("confirm_".$column, $orig_data).'" id="confirm-'.$column.'">
+                </td>
+              </tr>';
+      }
+    }
+    if ($table === "users") {
+      echo '<tr>
+              <td class="left">
+                <label for="newsletter">newsletter?</label>
+              </td>
+              <td class="right">
+                <input type="checkbox" name="newsletter" id="newsletter" ';
+                if (get_value("newsletter", $orig_data) == 1 || get_value("newsletter", $orig_data) == "on"
+                    || get_value("newsletter", $orig_data) == "true") {
+                  echo 'checked="true"';
+                }
+      echo  '></td>
+            </tr>';
+      echo '<input type="hidden" name="orig_email" value="'.get_value("orig_email", $orig_data).'">';
+      echo '<input type="hidden" name="orig_newsletter" value="'.get_value("orig_newsletter", $orig_data).'">';
+    }
+    if ($table === "holidays") {
+      echo '<tr>
+              <td class="left">
+                <input type="hidden" name="MAX_FILE_SIZE" VALUE="30000">
+                <label for="upload">Choose image </label>
+              </td>
+              <td class="right">
+                <input type="file" class="border border-danger" name="upload"
+                  value="'.get_value($column, $orig_data).'" id="upload">
+              </td>
+            </tr>';
+    }
+    echo '<input type="hidden" name="table" value="'.$table.'">';
+    echo '<input type="hidden" name="id" value="'.get_value("id", $orig_data).'">';
+    echo '</tbody></table>';
+
+  }
+
 
 ?>

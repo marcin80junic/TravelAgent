@@ -13,7 +13,7 @@
     exit();
   }
 
-  require("../../../../../xxsecure/dbconnect.php");
+  require("../../../../xxsecure/dbconnect.php");
   require("mysql_querries.php");
 
   //if deletion has been confirmed remove the record from db

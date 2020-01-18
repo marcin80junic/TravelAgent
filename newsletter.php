@@ -4,6 +4,17 @@
   $page_title = "Sign up for a newsletter";
   include("templates/header.php");
 
+  function send_confirmation_email($dest) {
+    $subject = "Europe Travel Experts Newsletter";
+    $body = "You have successfully signed up for our newsletter!\nYou will
+            receive chosen offers to $dest every now and then :)";
+    $body = wordwrap($body, 70);
+    $from = "From: postmaster@localhost.com";
+    $dest = "dest@localhost.com";  //line to be removed before publishing
+    mail($dest, $subject, $body, $from);
+    echo "<p>email has been sent to $dest, $from</p>";
+  }
+
   //check if the form has been submitted
   if($_SERVER['REQUEST_METHOD'] == 'POST') {
 
@@ -12,7 +23,7 @@
     //if the email field has been filled in open connection to the database,
     //check if the email is already in database, if not add it to newsletter table
     if(!empty($_POST['email'])) {
-      require("../../../../xxsecure/dbconnect.php");
+      require("../../../xxsecure/dbconnect.php");
       require("php/mysql_querries.php");
       $email = mysqli_real_escape_string($dbconnect, trim($_POST['email']));
       if(newsletter_is_unique_email($dbconnect, $email)) {
@@ -25,7 +36,9 @@
           echo '<div class="text-center"><h3 class="mb-3">Congratulations</h3>';
           echo '<p>You have succesfully signed up for our newsletter!</p>';
           echo "<p>You will receive special offers on following email address:
-                <strong>$email</strong></p></div>";
+                <strong>$email</strong></p>";
+          send_confirmation_email($email);
+          echo "</div>";
         } else {
           echo '<h4>System error</h4><p class="error">You coud not be signed up for a newsletter due
                 to a system error. We apologise for any inconvenience.<br>Please try again later..</p>';

@@ -1,7 +1,7 @@
 <?php
 
   //set up a script
-  require("../../../../../xxsecure/dbconnect.php");
+  require("../../../../xxsecure/dbconnect.php");
   require("mysql_querries.php");
 
   //declare and initialize critical variables

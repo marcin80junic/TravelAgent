@@ -57,6 +57,8 @@
       if($conf_pass != $pass) {
         $edit_errors[] = $reg_errors[] = "password confirmation DOESN'T match!";
       }
+    } else {
+      $edit_errors[] = $reg_errors[] = "password confirmation is empty!";
     }
   }
 
