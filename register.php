@@ -22,14 +22,9 @@
   //check if the form has been submitted
   if($_SERVER['REQUEST_METHOD'] == 'POST') {
 
-    //open connection to the database
+    //open connection to the database and validate the form
     require("../../../xxsecure/dbconnect.php");
     require("php/form_validation.php");
-
-    //check if agreed to the privacy policy
-    if(!$privacy) {
-      $reg_errors[] = "You have to agree to the privacy policy!";
-    }
 
     //if any errors encountered display them and continue back to the form
     if(!empty($reg_errors)) {
@@ -49,9 +44,9 @@
         echo "<p>You have succesfully registered an account!</p>";
 
         //check if signed up for a newsletter
-        if($newsletter) {
-          if(newsletter_is_unique_email($dbconnect, $email)) {
-            $newsletter_response = newsletter_insert($dbconnect, $email, $news);
+        if(isset($_POST['newsletter']) && ($_POST['newsletter'] === "yes")) {
+          if (is_email_unique($dbconnect, "newsletter", $email)) {
+            $newsletter_response = newsletter_insert($dbconnect, $email, $reg_news);
             if($newsletter_response) {
               echo "<p>You have also signed up for our newsletter!</p>
                     <p>We will send you offers you are interested in to the following
@@ -66,14 +61,12 @@
                     to a system error. We apologise for any inconvenience.<br>Please try again later..</p>';
               echo "<p>".mysqli_error($dbconnect)."</p>";
             }
-          }
-          else {
-        //    $newsletter_response = newsletter_update($dbconnect, $email, $options);
+          } else {
+            echo "<p>You are already receiving our newsletter</p>";
           }
         }
         echo "</div>";
       }
-
       //..or error message
       else {
         echo '<h4>System error</h4><p class="error">You coud not be registered due to a system error.
@@ -161,13 +154,13 @@
             <div class="form-check-inline">
               <label class="form-check-label mx-3">
                 <input type="radio" name="newsletter" class="form-check-input" name="newsletter"
-                value="Yes" checked="true">Yes
+                value="yes" checked="true">Yes
               </label>
             </div>
             <div class="form-check-inline">
               <label class="form-check-label">
                 <input type="radio" name="newsletter" class="form-check-input" name="newsletter"
-                value="No" <?php if( isset($_POST['newsletter']) && ($_POST['newsletter'] == "No") )
+                value="no" <?php if( isset($_POST['newsletter']) && ($_POST['newsletter'] == "no") )
                 echo 'checked="true"'; ?> >No
               </label>
             </div>

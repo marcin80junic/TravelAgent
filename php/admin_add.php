@@ -3,7 +3,7 @@
   //make sure that table name has been specified
   if (isset($_REQUEST['table'])) {
     if (!empty($_REQUEST['table'])) {
-      $table_name = $_GET['table'];
+      $table_name = $_REQUEST['table'];
     } else {
       echo '<p>table name is undefined!</p>';
       exit();
@@ -28,20 +28,22 @@
         echo '<p class="lead text-danger font-weight-bold">' . $message . '</p>';
       }
     }
+    //if no errors carry on with insertion
+    else {
+      
+    }
 
   }
 
   //create a sticky form
-  echo '<form enctype="multipart/form-data" action="admin_add.php" method="post">
+  echo '<form id="decision" enctype="multipart/form-data" action="admin_add.php" method="post">
           <p>Please fill in details for new '.$table_name.' record';
 
   $current_data = ignore_values($current_data);
   create_table_form($table_name, $current_data, $current_type);
 
-  echo '<button type="submit" name="yes" value="yes">Add</button>
-        <a href="php/admin_edit.php?no=no">
-          <button id="cancel" name="no" value="no" class="ml-2">Cancel</button>
-        </a>
+  echo '<button id="create" type="submit" name="yes" value="yes">Add</button>
+        <button id="cancel" name="cancel" value="cancel" class="ml-2">Cancel</button>
       </form>';
 
   ?>

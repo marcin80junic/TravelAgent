@@ -40,13 +40,20 @@ $(function() {
     //recursive function setting up admin table listeners
     function tablePostCallback(data, tableName) {
       $("#table").html(data);
-      window.scrollTo(0, $("#table").offset().top - $(".sticky-top").height());
+      var offsetY = $("#table").offset().top - $(".sticky-top").height();
+      if (offsetY > $(window).scrollTop()) {
+          window.scrollTo(0, offsetY);
+      }
+
 
       //listener for table headers sorting links
       $("#admin-table-head a, #table-navigation a").on('click', (e)=>{
         e.preventDefault();
         var getData = e.target.href? e.target.href: $(e.target).parent().prop("href");
         getData = getData.substring(getData.lastIndexOf("/")+1);
+        var sort = getData.substring(getData.indexOf("sort=")+5);
+        sort = decodeURI(sort);
+        $("#"+tableName+"_sort").val(sort);
         $.ajax({
           url: "php/admin_table.php",
           data: getData,
@@ -84,13 +91,11 @@ $(function() {
       var href = e.target.href? e.target.href: e.target.parentElement.href;
       var address = href.substring(0, href.indexOf("?"));
       var data = href.substring(href.indexOf("?")+1);
-      var type = (data.indexOf("no=no") == -1)? "get": "post";
-      $dialog.dialog("option", "title", title);
-      $dialog.dialog("option", "height", height);
+      $dialog.dialog("option", {title: title, height: height});
       $.ajax({
         url: address,
         data: data,
-        type: type,
+        type: "get",
         success: function(data) {
           dialogCallback(data, address);
           addListeners();
@@ -119,7 +124,8 @@ $(function() {
 
     function addListeners() {
       $("#cancel").on("click", (e)=>{
-        display_dialog(e, "action cancelled", "200");
+        e.preventDefault();
+        $dialog.dialog("close");
       });
       var $okButton = $("#ok");
       if ($okButton.length > 0){

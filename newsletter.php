@@ -11,9 +11,12 @@
     $body = wordwrap($body, 70);
     $from = "From: postmaster@localhost.com";
     $dest = "dest@localhost.com";  //line to be removed before publishing
-    mail($dest, $subject, $body, $from);
-    echo "<p>email has been sent to $dest, $from</p>";
-  }
+    if (@mail($dest, $subject, $body, $from)) {
+      echo "<p>email has been sent to $dest, $from</p>";
+    } else {
+      echo "<p>mail have not been sent, the mail server is off</p>";
+    }
+
 
   //check if the form has been submitted
   if($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -26,7 +29,7 @@
       require("../../../xxsecure/dbconnect.php");
       require("php/mysql_querries.php");
       $email = mysqli_real_escape_string($dbconnect, trim($_POST['email']));
-      if(newsletter_is_unique_email($dbconnect, $email)) {
+      if (is_email_unique($dbconnect, "newsletter", $email)) {
         $length = count(NEWSLETTER_COLUMNS);
         for($i=0; $i<$length; $i++) {
           $news[] = 1;

@@ -30,9 +30,9 @@
 
   $start = isset($_GET['start'])? $_GET['start']: 0;
 
-  $sort = (isset($_GET['sort']))? $_GET['sort']: "";
+  $sort = (isset($_REQUEST['sort']))? $_REQUEST['sort']: "";
   $found = false;
-  foreach($current_data as $value) {
+  foreach($current_data as $key => $value) {
     if("$value ASC" == $sort || "$value DESC" == $sort) {
       $found = true;
       break;

@@ -21,6 +21,7 @@
     }
     echo '<input type="hidden" name="table_name" value="'.$name.'">';
     echo '<input type="hidden" name="display" value="10" id="'.$name.'_display">';
+    echo '<input type="hidden" name="sort" value="" id="'.$name.'_sort">';
   }
 
   //generic function creating layout for table forms with column choice

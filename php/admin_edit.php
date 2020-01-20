@@ -25,7 +25,7 @@
   require("mysql_querries.php");
 
   //check if choice was to cancel and quit the script
-  if(isset($_POST['no'])) {
+  if(isset($_POST['cancel'])) {
     echo '<p>Edit has been cancelled</p>';
     close_script($dbconnect);
   }
@@ -38,37 +38,38 @@
     echo '<p>this page has been accessed in error</p>';
     close_script($dbconnect);
   }
-
-  //and set up the script
   set_current_data($table_name);
-  $pure_data = ignore_values($current_data);
-  if($table_name === "newsletter") {
-    \array_splice($pure_data, 0, 1);
-  }
-  $db_columns = array_values($pure_data);
 
-  //in case of first connection
+
+  //first connection
   if($_SERVER['REQUEST_METHOD'] == 'GET') {
 
     //on first connection extract the record
-    $result = select_one_row_selected($dbconnect, $table_name, $db_columns, $id);
+    $result = select_one_row($dbconnect, $table_name, $id);
     if(mysqli_num_rows($result) == 1){
-      $pure_row = mysqli_fetch_array($result, MYSQLI_ASSOC);
+      $record_data = mysqli_fetch_array($result, MYSQLI_ASSOC);
     } else {
       echo '<h2>'.mysqli_error($dbconnect).'</h2>';
       close_script($dbconnect);
     }
-    //extract some original values to be kept in hidden inputs
-    if($table_name == "users") {
-      $orig_email = $pure_row['email'];
-      $check_newsletter = users_is_newsletter($dbconnect, $orig_email);
+    //check if user is signed up for newsletter
+    if ($table_name === "users") {
+      $email = $record_data['email'];
+      $check_newsletter = users_is_newsletter($dbconnect, $email);
       $orig_newsletter = (mysqli_num_rows($check_newsletter) == 1)? true: false;
-      $pure_row["newsletter"] = $orig_newsletter;
-      $pure_row["orig_newsletter"] = $orig_newsletter;
-      $pure_row["orig_email"] = $orig_email;
-      $pure_row["id"] = $id;
+      $record_data["newsletter"] = $orig_newsletter;
+    }
+    //newsletter table doesn't have an id column so one needs to be inserted
+    if ($table_name === "newsletter") {
+      $record_data["id"] = $record_data["email"];
     }
   }
+
+
+  //ignoring columns which shouldn't be edited
+  $pure_data = ignore_values($current_data);
+  $chosen_db_columns = array_values($pure_data);
+
 
   //on submit
   if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -91,12 +92,12 @@
     //if no errors proceed with update
     else {
       if ($table_name == "users") {
-        $query_result = update_one_row($dbconnect, $table_name, $id, $db_columns, $reg_data);
+        $query_result = update_one_row($dbconnect, $table_name, $id, $edit_data);
         report_query($dbconnect);
         if (($orig_newsletter == "" && $newsletter == "on") ||
             ($orig_newsletter == "1" && $newsletter == "")) {
           if ($newsletter == "on") {
-            if (newsletter_is_unique_email($dbconnect, $email)) {
+            if (is_email_unique($dbconnect, "newsletter", $email)) {
               $length = count(NEWSLETTER_COLUMNS);
               for($i=0; $i<$length; $i++) {
                 $news_data[] = 1;
@@ -121,7 +122,7 @@
       }
       elseif($table_name == "newsletter") {
         $id = "'".$id."'";
-        $query_result = update_one_row($dbconnect, $table_name, $id, $db_columns, $news);
+        $query_result = update_one_row($dbconnect, $table_name, $id, $edit_news);
         report_query($dbconnect);
       }
       close_script($dbconnect);
@@ -139,15 +140,13 @@
     <?php
       //display a table with form fields
       if($_SERVER['REQUEST_METHOD'] == 'GET') {
-        create_table_form($table_name, $pure_data, $current_type, $pure_row);
+        create_table_form($table_name, $pure_data, $current_type, $record_data);
       } else {
         create_table_form($table_name, $pure_data, $current_type);
       }
 
      ?>
     <button type="submit" name="yes" value="yes">Update</button>
-    <a href="php/admin_edit.php?no=no">
-      <button id="cancel" name="no" value="no" class="ml-2">Cancel</button>
-    </a>
+    <button id="cancel" name="cancel" value="cancel" class="ml-2">Cancel</button>
   </form>
 </div>
