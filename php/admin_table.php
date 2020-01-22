@@ -83,8 +83,13 @@
         //insert # column
         echo '<tr><td align="right">'.$index++.'</td>';
         for($i = 0; $i < $length; $i++) {
-          if($db_columns[$i] != "password") {
-          echo '<td align="right">'.$row[$db_columns[$i]].'</td>';
+          $value = $row[$db_columns[$i]];
+          if ($db_columns[$i] === "date_from" || $db_columns[$i] === "date_to") {
+            $value = strtotime($value);
+            $value = ($value < 0)? "": date("d-m-Y", $value);
+          }
+          if ($db_columns[$i] != "password") {
+            echo '<td align="right">'.$value.'</td>';
           }
         }
         $key = $row[0];

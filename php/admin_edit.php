@@ -1,25 +1,5 @@
 <?php #admin_edit.php
 
-  //closing procedures
-  function close_script($dbc) {
-    echo '<br><button class="btn btn-info" id="ok" href="../admin.php">Ok</button>';
-    mysqli_close($dbc);
-    exit();
-  }
-
-  //prints out update report
-  function report_query($dbc) {
-    if (mysqli_affected_rows($dbc) == 1) {
-      echo '<p class="pt-3">record have been updated successfully<br></p>';
-    }
-    elseif (mysqli_affected_rows($dbc) == 0) {
-      echo '<p class="pt-3">No records have been updated</p>';
-    }
-    else {
-      echo '<p class="pt-3">Error: '.mysqli_error($dbc).'</p>';
-    }
-  }
-
   //import db connection and constants
   require("../../../../xxsecure/dbconnect.php");
   require("mysql_querries.php");
@@ -27,7 +7,7 @@
   //check if choice was to cancel and quit the script
   if(isset($_POST['cancel'])) {
     echo '<p>Edit has been cancelled</p>';
-    close_script($dbconnect);
+    exit();
   }
 
   //first extract critical variables
@@ -92,42 +72,40 @@
     //if no errors proceed with update
     else {
       if ($table_name == "users") {
-        $query_result = update_one_row($dbconnect, $table_name, $id, $edit_data);
+        update_one_row($dbconnect, $table_name, $id, $edit_data);
         report_query($dbconnect);
         if (($orig_newsletter == "" && $newsletter == "on") ||
             ($orig_newsletter == "1" && $newsletter == "")) {
           if ($newsletter == "on") {
-            if (is_email_unique($dbconnect, "newsletter", $email)) {
-              $length = count(NEWSLETTER_COLUMNS);
-              for($i=0; $i<$length; $i++) {
-                $news_data[] = 1;
-              }
-              $signed_in_result = newsletter_insert($dbconnect, $email, $news_data);
-              if ($signed_in_result) {
-                echo '<p>successfully signed up for a newsletter</p>';
-              } else {
-                echo '<p>MySql Error: '.mysqli_error($dbconnect).'</p>';
-              }
+            $sign_up_result = newsletter_sign_up($dbconnect, $email);
+            if ($sign_up_result) {
+              echo '<p>successfully signed up for a newsletter</p>';
+            } elseif (mysqli_error($dbconnect)) {
+              echo '<p>MySql Error: '.mysqli_error($dbconnect).'</p>';
+            } else {
+              echo '<p>Your email address is already receiving a newsletter</p>';
             }
           }
-          else {
-            $signed_out_result = remove_one_row($dbconnect, "newsletter", $_POST['orig_email']);
-            if ($signed_out_result) {
-              echo '<p>successfully signed out of a newsletter</p>';
-            } else {
-              echo '<p>MySql Error: '.mysqli_error($dbconnect).'</p>';
-            }
+        } else {
+          $signed_out_result = remove_one_row($dbconnect, "newsletter", $_POST['orig_email']);
+          if ($signed_out_result) {
+            echo '<p>successfully signed out of a newsletter</p>';
+          } else {
+            echo '<p>MySql Error: '.mysqli_error($dbconnect).'</p>';
           }
         }
       }
-      elseif($table_name == "newsletter") {
+      elseif ($table_name == "newsletter") {
         $id = "'".$id."'";
         $query_result = update_one_row($dbconnect, $table_name, $id, $edit_news);
         report_query($dbconnect);
       }
+      elseif ($table_name === "holidays") {
+        $result_insert = update_one_row($dbconnect, $table_name, $id, $edit_holid);
+        report_query($dbconnect);
+      }
       close_script($dbconnect);
     }
-
   }
 
 ?>
@@ -138,6 +116,7 @@
     <p>Edit current record id: <?php echo $id; ?></p>
 
     <?php
+
       //display a table with form fields
       if($_SERVER['REQUEST_METHOD'] == 'GET') {
         create_table_form($table_name, $pure_data, $current_type, $record_data);
@@ -146,6 +125,8 @@
       }
 
      ?>
+
+     <br>
     <button type="submit" name="yes" value="yes">Update</button>
     <button id="cancel" name="cancel" value="cancel" class="ml-2">Cancel</button>
   </form>

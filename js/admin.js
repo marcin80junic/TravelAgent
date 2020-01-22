@@ -20,7 +20,7 @@ $(function() {
     var $dialog = $('#dialog-1').dialog({
       autoOpen: false,
       modal: true,
-      width: 500,
+      width: 520,
     });
 
     $("form").on("submit", (e)=>{
@@ -39,8 +39,8 @@ $(function() {
 
     //recursive function setting up admin table listeners
     function tablePostCallback(data, tableName) {
-      $("#table").html(data);
-      var offsetY = $("#table").offset().top - $(".sticky-top").height();
+      $("#main-table").html(data);
+      var offsetY = $("#main-table").offset().top - $(".sticky-top").height();
       if (offsetY > $(window).scrollTop()) {
           window.scrollTo(0, offsetY);
       }
@@ -79,10 +79,10 @@ $(function() {
       });
       //listeners for edit and remove record links
       $(".remove").on("click", (e)=>{
-        display_dialog(e, "confirm remove", "250");
+        display_dialog(e, "confirm remove", "500");
       });
       $(".edit").on("click", (e)=>{
-        display_dialog(e, "edit record", "440");
+        display_dialog(e, "edit record", "500");
       });
     }
 
@@ -106,14 +106,26 @@ $(function() {
     function dialogCallback(data, address) {
       $dialog.html(data);
       $dialog.dialog("open");
+      $("input[id^='date']").datepicker({dateFormat: "dd-mm-yyyy"});
       //add event listener on form
       $('#decision').on("submit", (e)=> {
         e.preventDefault();
-        var postData = $(e.target).serialize();
+        //send data in a FormData object in case there is a file upload field
+        var postData = new FormData();
+        var $fields = $('#decision input');
+        $.each($fields, (i, f)=>{
+          var $field = $(f);
+          postData.append($field.prop("name"), $field.val());
+        });
+        if ($("#image").length > 0) {
+          postData.append("image", $("#image")[0].files[0]);
+        }
         $.ajax({
           url: address,
           type: "post",
           data: postData,
+          processData: false,
+          contentType: false,
           success: function(data) {
             dialogCallback(data, address);
             addListeners();
@@ -129,10 +141,10 @@ $(function() {
       });
       var $okButton = $("#ok");
       if ($okButton.length > 0){
-        $dialog.dialog("option", "height", "200");
+        $dialog.dialog("option", "height", "250");
         $okButton.on("click", ()=>{
           $dialog.dialog("close");
-          var tableName = $("#table h3").text();
+          var tableName = $("#main-table h3").text();
           $('[name="'+tableName+'"]').click();
         });
       } else if ($("#confirm-remove").length > 0) {

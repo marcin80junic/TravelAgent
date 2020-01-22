@@ -19,7 +19,10 @@
   //if deletion has been confirmed remove the record from db
   if($_SERVER['REQUEST_METHOD'] == 'POST') {
 
-    if(!isset($_POST['no'])) {
+    if (!isset($_POST['no'])) {
+      if ($table === "holidays") {
+        remove_image($dbconnect, $id);
+      }
       $del = remove_one_row($dbconnect, $table, $id);
       if(mysqli_affected_rows($dbconnect) == 1) {
         echo '<p class="pt-3">record have been removed from the database<br></p>';
@@ -37,7 +40,8 @@
 
 ?>
 
-<p>Are you sure you want to remove the following record:<br><br>
+<div>
+  <p>Are you sure you want to remove the following record?</p>
 
   <?php
     if($_SERVER['REQUEST_METHOD'] == 'GET') {
@@ -45,26 +49,29 @@
       if(mysqli_num_rows($result) == 1){
         $row = mysqli_fetch_array($result, MYSQLI_ASSOC);
         $columns = array_keys($row);
+        echo "<p>";
         for($i=0; $i<3; $i++) {
           $col = $columns[$i];
           echo $col.': '.$row[$col].' | ';
         }
+        echo "</p>";
       } else {
         echo '<h2>'.mysqli_error($dbconnect).'</h2>';
       }
     }
 
   ?>
-  <br><br>from the database?
-</p>
-<form id="decision" action="admin_remove.php" method="post">
-  <input type="hidden" name="table" value="<?php echo $table; ?>">
-  <input type="hidden" name="id" value="<?php echo $id; ?>">
-  <?php echo '<a href="php/admin_remove.php?yes=yes&table='.$table.'&id='.$id.'">'; ?>
-    <button id="confirm-remove" type="submit" name="yes" value="yes">Yes</button>
-  </a>
-  <?php echo '<a href="php/admin_remove.php?no=no&table='.$table.'&id='.$id.'">'; ?>
-    <button type="submit" id="cancel" name="no" value="no" class="ml-2">No</button>
-  </a>
 
-</form>
+  <form id="decision" action="admin_remove.php" method="post">
+    <input type="hidden" name="table" value="<?php echo $table; ?>">
+    <input type="hidden" name="id" value="<?php echo $id; ?>">
+    <div class="pt-4">
+      <?php echo '<a href="php/admin_remove.php?yes=yes&table='.$table.'&id='.$id.'">'; ?>
+        <button id="confirm-remove" type="submit" name="yes" value="yes">Yes</button>
+      </a>
+      <?php echo '<a href="php/admin_remove.php?no=no&table='.$table.'&id='.$id.'">'; ?>
+        <button type="submit" id="cancel" name="no" value="no" class="ml-2">No</button>
+      </a>
+    </div>
+  </form>
+</div>

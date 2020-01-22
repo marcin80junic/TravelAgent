@@ -30,7 +30,31 @@
     }
     //if no errors carry on with insertion
     else {
-      
+      if ($table_name === "users") {
+        $result_insert = users_insert($dbconnect, $reg_data);
+        report_query($dbconnect);
+        if($result_insert && isset($_POST['newsletter'])) {
+          $sign_up_result = newsletter_sign_up($dbconnect, $email);
+          if ($sign_up_result) {
+            echo '<p>successfully signed up for a newsletter</p>';
+          } elseif (mysqli_error($dbconnect)) {
+            echo '<p>MySql Error: '.mysqli_error($dbconnect).'</p>';
+          } else {
+            echo '<p>Your email address is already receiving a newsletter</p>';
+          }
+        }
+      }
+      elseif ($table_name === "newsletter") {
+        if (is_email_unique($dbconnect, $table_name, $email)) {
+          $sign_up_result = newsletter_insert($dbconnect, $email, $reg_news);
+          report_query($dbconnect);
+        }
+      }
+      elseif ($table_name === "holidays") {
+        $result_insert = holidays_insert($dbconnect, $reg_holid);
+        report_query($dbconnect);
+      }
+      close_script($dbconnect);
     }
 
   }
@@ -42,7 +66,7 @@
   $current_data = ignore_values($current_data);
   create_table_form($table_name, $current_data, $current_type);
 
-  echo '<button id="create" type="submit" name="yes" value="yes">Add</button>
+  echo '<br><button id="create" type="submit" name="yes" value="yes">Create</button>
         <button id="cancel" name="cancel" value="cancel" class="ml-2">Cancel</button>
       </form>';
 
