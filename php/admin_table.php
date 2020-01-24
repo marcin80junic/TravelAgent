@@ -6,6 +6,7 @@
 
   //declare and initialize critical variables
   $table_name = $display = $pages = $start = $sort = $get_query ="";
+  $plain_href = $col_href = "";
 
   if (isset($_REQUEST['table_name'])) {
     $table_name = $_REQUEST['table_name'];
@@ -88,6 +89,16 @@
             $value = strtotime($value);
             $value = ($value < 0)? "": date("d-m-Y", $value);
           }
+          elseif ($db_columns[$i] === "image") {
+            if (file_exists($value) && is_file($value)) {
+              $image_size = getimagesize($value);
+              $file_name = urlencode(substr($value, strrpos($value, "/")+1));
+              $value = "<a href=\"javascript:displayImage('$file_name', $image_size[0], $image_size[1])\">$file_name</a>";
+            } else {
+              $value = "image doesn't exist";
+            }
+
+          }
           if ($db_columns[$i] != "password") {
             echo '<td align="right">'.$value.'</td>';
           }
@@ -100,34 +111,7 @@
               remove</a></form></td></tr>';
       }
       echo '</tbody></table></div>';
-
-      //create table page navigation
-      $current_page = ($start/$display) + 1;
-      $prev_disabled = ($current_page == 1);
-      $next_disabled = ($current_page == $pages);
-      $button_href = $col_href.$sort;
-      echo '<div class="d-flex justify-content-between pb-1 m-1"><div id="table-navigation" class="">';
-      //previous button
-      echo '<a href="'.$button_href.'&start='.($start-$display).'"><button';
-      if($prev_disabled) echo ' disabled="disabled"';
-      echo '>Prev</button></a>';
-      //number buttons
-      for($i=1; $i<=$pages; $i++) {
-        $num = $i;
-        if($current_page == $i) $num = "<b>$num</b>";
-        echo '<a href="'.$button_href.'&start='.($display*($i-1)).'"><button>'.$num.'</button></a>';
-      }
-      //next button
-      echo '<a href="'.$button_href.'&start='.($start+$display).'"><button';
-      if($next_disabled) echo ' disabled="disabled"';
-      echo '>Next</button></a>';
-
-      //hidden input with "href" value to be retrieved by javascript
-      $display_href = "{$plain_href}sort=$sort";
-      echo '<input type="hidden" name="href" id="href" value="'.$display_href.'">';
-      echo '</div>';
     }
-
 
     //if couldn't retrieve records from database display error message
     else {
@@ -141,7 +125,37 @@
     echo '<h3 class="text-center mb-3">'.$table_name.'</h3>';
     echo '<p class="text-center text-danger">No data selected!</p>';
     mysqli_close($dbconnect);
+    exit();
   }
+
+  //create table page navigation
+  $current_page = ($start/$display) + 1;
+  $prev_disabled = ($current_page == 1);
+  $next_disabled = ($current_page == $pages);
+  $button_href = $col_href.$sort;
+  echo '<div class="d-flex justify-content-between pb-1 m-1"><div id="table-navigation" class="">';
+  //previous button
+  echo '<a href="'.$button_href.'&start='.($start-$display).'"><button';
+  if($prev_disabled) {
+    echo ' disabled="disabled"';
+  }
+  echo '>Prev</button></a>';
+  //number buttons
+  for($i=1; $i<=$pages; $i++) {
+    $num = $i;
+    if($current_page == $i) $num = "<b>$num</b>";
+    echo '<a href="'.$button_href.'&start='.($display*($i-1)).'"><button>'.$num.'</button></a>';
+  }
+  //next button
+  echo '<a href="'.$button_href.'&start='.($start+$display).'"><button';
+  if($next_disabled) echo ' disabled="disabled"';
+  echo '>Next</button></a>';
+
+  //hidden input with "href" value to be retrieved by javascript
+  $display_href = "{$plain_href}sort=$sort";
+  echo '<input type="hidden" name="href" id="href" value="'.$display_href.'">';
+  echo '</div>';
+
 
 ?>
 

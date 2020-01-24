@@ -1,3 +1,13 @@
+function displayImage(image, width, height) {
+  width /= 6;
+  height /= 6;
+  var top = ($(window).height() - height) / 2;
+  var left = ($(window).width() - width) / 2;
+  var url = "php/show_image.php?image="+image;
+  var specs = "location=no,menubar=no,toolbar=no,resizable=yes,left="+left+",top="+top+",width="+width+",height="+height;
+  var popup = window.open(url, image, specs);
+  popup.focus();
+}
 
 
 $(function() {
@@ -20,7 +30,7 @@ $(function() {
     var $dialog = $('#dialog-1').dialog({
       autoOpen: false,
       modal: true,
-      width: 520,
+      width: 520
     });
 
     $("form").on("submit", (e)=>{
@@ -29,8 +39,8 @@ $(function() {
       var postData = $(e.target).serialize();
       $.ajax({
         url: "php/admin_table.php",
-        data: postData,
         type: "post",
+        data: postData,
         success: (data)=>{
           tablePostCallback(data, tableName);
         }
@@ -62,13 +72,18 @@ $(function() {
             tablePostCallback(data, tableName);
           }
         });
+        return false;
       });
       //listener for select box changing number of rows per page
       $("#display").on("change", (e)=>{
         var display = $("#display").val();
         $("#"+tableName+"_display").val(display);
         var getData = $("#href").val();
-        getData = getData.replace(/(?<=display\=)(.*?)(?=\&)/, display);
+        var temp = getData.substring(getData.indexOf("display=")+1);
+        var end = temp.substring(temp.indexOf("&"));
+        var start = getData.substring(0, getData.indexOf("display=")+8);
+        getData = start+display+end;
+  //      getData = getData.replace(/(?<=display\=)(.*?)(?=\&)/, display);
         $.get("php/admin_table.php", getData, function(data) {
           tablePostCallback(data, tableName);
         });
@@ -106,7 +121,7 @@ $(function() {
     function dialogCallback(data, address) {
       $dialog.html(data);
       $dialog.dialog("open");
-      $("input[id^='date']").datepicker({dateFormat: "dd-mm-yyyy"});
+      $("input[id^='date']").datepicker({dateFormat: "dd-mm-yy"});
       //add event listener on form
       $('#decision').on("submit", (e)=> {
         e.preventDefault();
@@ -153,5 +168,7 @@ $(function() {
         $dialog.dialog("option", "height", "500");
       }
     }
+
   });
+
 }());
