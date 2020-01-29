@@ -19,8 +19,8 @@
 
   $display = isset($_REQUEST['display'])? $_REQUEST['display']: 5;
 
-  if (isset($_GET['pages'])) {
-    $pages = $_GET['pages'];
+  if (isset($_REQUEST['pages'])) {
+    $pages = $_REQUEST['pages'];
   } else {
     $result = count_num_of_rows($dbconnect, $table_name);
     if($result) {
@@ -29,9 +29,9 @@
     $pages = ($rows > $display)? ceil($rows/$display): 1;
   }
 
-  $start = isset($_GET['start'])? $_GET['start']: 0;
+  $start = isset($_REQUEST['start'])? $_REQUEST['start']: 0;
 
-  $sort = (isset($_REQUEST['sort']))? $_REQUEST['sort']: "";
+  $sort = isset($_REQUEST['sort'])? $_REQUEST['sort']: "";
   $found = false;
   foreach($current_data as $key => $value) {
     if("$value ASC" == $sort || "$value DESC" == $sort) {

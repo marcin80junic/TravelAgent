@@ -23,6 +23,7 @@
   if($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     //open connection to the database and validate the form
+    $table_name = "users";
     require("../../../xxsecure/dbconnect.php");
     require("php/form_validation.php");
 

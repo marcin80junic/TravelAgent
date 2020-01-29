@@ -1,7 +1,9 @@
 <?php
 
-include("templates/header.php");
+  session_start();
 
-include("templates/footer.html");
+  include("templates/header.php");
+
+  include("templates/footer.html");
 
 ?>

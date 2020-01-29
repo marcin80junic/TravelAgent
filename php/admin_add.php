@@ -15,6 +15,7 @@
 
   //set up the script
   require("../../../../xxsecure/dbconnect.php");
+  require("admin_table_functions.php");
   require("mysql_querries.php");
   set_current_data($table_name);
 
@@ -32,7 +33,7 @@
     else {
       if ($table_name === "users") {
         $result_insert = users_insert($dbconnect, $reg_data);
-        report_query($dbconnect);
+        report_query($dbconnect, $reg_data);
         if($result_insert && isset($_POST['newsletter'])) {
           $sign_up_result = newsletter_sign_up($dbconnect, $email);
           if ($sign_up_result) {
@@ -47,12 +48,12 @@
       elseif ($table_name === "newsletter") {
         if (is_email_unique($dbconnect, $table_name, $email)) {
           $sign_up_result = newsletter_insert($dbconnect, $email, $reg_news);
-          report_query($dbconnect);
+          report_query($dbconnect, $reg_news);
         }
       }
       elseif ($table_name === "holidays") {
         $result_insert = holidays_insert($dbconnect, $reg_holid);
-        report_query($dbconnect);
+        report_query($dbconnect, $reg_holid);
       }
       close_script($dbconnect);
     }

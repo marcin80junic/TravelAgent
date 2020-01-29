@@ -168,7 +168,7 @@
       }
     }
 
-    if (isset($_POST['password'])) {
+    if ((!isset($id) || !empty($_POST['password'])) && isset($_POST['password'])) {
       if(!empty($_POST['password'])) {
         $pass = mysqli_real_escape_string($dbconnect, trim($_POST['password']));
         $reg_data[] = $pass;
@@ -185,7 +185,8 @@
       }
     }
 
-    if (isset($_POST['confirm_password'])) {
+    if ((!isset($id) || !empty($_POST['password']) || !empty($_POST['confirm_password']))
+          && isset($_POST['confirm_password'])) {
       if (!empty($_POST['confirm_password'])) {
         $conf_pass = mysqli_real_escape_string($dbconnect, $_POST['confirm_password']);
         if ($conf_pass != $pass) {

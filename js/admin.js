@@ -1,3 +1,4 @@
+
 function displayImage(image, width, height) {
   width /= 6;
   height /= 6;
@@ -14,6 +15,14 @@ $(function() {
 //  alert("jow");
   $(document).ready(()=>{
 
+    //initialize dialog window object used for editing and removing records
+    $dialog = $('#dialog-1').dialog({
+      autoOpen: false,
+      modal: true,
+      width: 520
+    });
+
+
     $('.select_all').on('click', (e)=>{
       e.preventDefault();
       $this = $(e.target);
@@ -24,13 +33,6 @@ $(function() {
       e.preventDefault();
       $this = $(e.target);
       $this.parent().parent().parent().find("input:checkbox").prop("checked", false);
-    });
-
-    //initialize dialog window object used for editing and removing records
-    var $dialog = $('#dialog-1').dialog({
-      autoOpen: false,
-      modal: true,
-      width: 520
     });
 
     $("form").on("submit", (e)=>{
@@ -62,8 +64,17 @@ $(function() {
         var getData = e.target.href? e.target.href: $(e.target).parent().prop("href");
         getData = getData.substring(getData.lastIndexOf("/")+1);
         var sort = getData.substring(getData.indexOf("sort=")+5);
+        if (sort.indexOf("&") !== -1) {
+          sort = sort.substring(0, sort.indexOf("&"));
+        }
+        var start = getData.substring(getData.indexOf("start=")+6);
+        if (start.indexOf("&") !== -1) {
+          start = start.substring(0, start.indexOf("&"));
+        }
+        start = decodeURI(start);
         sort = decodeURI(sort);
         $("#"+tableName+"_sort").val(sort);
+        $("#"+tableName+"_start").val(start);
         $.ajax({
           url: "php/admin_table.php",
           data: getData,
@@ -130,7 +141,13 @@ $(function() {
         var $fields = $('#decision input');
         $.each($fields, (i, f)=>{
           var $field = $(f);
-          postData.append($field.prop("name"), $field.val());
+          if ($field.is(":checkbox")) {
+            if ($field.prop("checked")) {
+              postData.append($field.prop("name"), true);
+            }
+          } else {
+            postData.append($field.prop("name"), $field.val());
+          }
         });
         if ($("#image").length > 0) {
           postData.append("image", $("#image")[0].files[0]);

@@ -12,7 +12,8 @@
   <script src="js/bootstrap.js"></script>
   <script src="js/jquery-ui.js"></script>
   <script src="js/init.js"></script>
-  <title><?php echo "$page_title"; ?></title>
+  <title><?php $page_title = isset($page_title)? $page_title: "Europe Travel Experts";
+          echo "$page_title"; ?></title>
 </head>
 <body class="d-flex flex-column">
   <div class="wrapper container-fluid flex-fill px-5 pb-5 pt-3">
@@ -29,15 +30,37 @@
           <li id="holidays" class="nav-item px-2 py-1">
             <a class="nav-link text-white" href="">Holidays</a>
           </li>
-          <li id="register" class="nav-item px-2 py-1">
-            <a class="nav-link text-white" href="register_login.php">Register/Login</a>
-          </li>
+
+          <?php
+            if (isset($_SESSION['agent']) && ($_SESSION['agent'] === sha1($_SERVER['HTTP_USER_AGENT']))) {
+              echo '<li id="logout" class="nav-item px-2 py-1">
+                      <a class="nav-link text-white" href="logout.php">Logout</a>
+                    </li>';
+            } else {
+              echo '<li id="register" class="nav-item px-2 py-1">
+                     <a class="nav-link text-white" href="register_login.php">Register/Login</a>
+                   </li>';
+            }
+           ?>
+
         </ul>
         <ul id="navigation" class="navbar-nav ml-auto">
-          <li id="admin" class="nav-item px-2 py-1">
-            <a class="nav-link text-white" href="admin.php">admin</a>
-          </li>
+
+          <?php
+            if (isset($_SESSION['agent']) && ($_SESSION['agent'] === sha1($_SERVER['HTTP_USER_AGENT']))) {
+              if (isset($_SESSION['email']) && ($_SESSION['email'] === "admin")) {
+                echo '<li id="admin" class="nav-item px-2 py-1">
+                        <a class="nav-link text-white" href="admin.php">admin</a>
+                      </li>';
+              } else {
+                echo '<li id="account" class="nav-item px-2 py-1">
+                        <a class="nav-link text-white" href="account_settings.php">My Account</a>
+                      </li>';
+              }
+            }
+           ?>
+
         </ul>
       </nav>
 
-      <div class="flex-grow-1 p-5">
+      <div class="flex-grow-1 text-center p-5">

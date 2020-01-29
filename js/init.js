@@ -1,5 +1,9 @@
+
 (function() {
-  window.addEventListener('load', ()=>{
+
+  $(document).ready(()=>{
+
+    //organize navbar highlights
     $menu = $("#navigation li");
     var path = window.location.pathname;
     var fileName = path.substring(path.lastIndexOf("/")+1, path.indexOf("."));
@@ -7,5 +11,7 @@
       fileName = fileName.substring(0, fileName.indexOf("_"));
     }
     $menu.filter("#"+fileName).addClass("bg-success");
-  }, false);
+
+  });
+
 }())

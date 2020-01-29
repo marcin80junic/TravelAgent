@@ -36,7 +36,7 @@ body {
 }*/
 
 #dialog-1 {
-  
+
 }
 
 table th {
@@ -54,4 +54,8 @@ td {
 
 .right {
   text-align: left;
+}
+
+.sticky-top {
+  z-index: 100;
 }

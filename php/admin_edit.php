@@ -1,8 +1,9 @@
 <?php #admin_edit.php
 
-  //import db connection and constants
+  //import db connection and functions
   require("../../../../xxsecure/dbconnect.php");
   require("mysql_querries.php");
+  require("admin_table_functions.php");
 
   //check if choice was to cancel and quit the script
   if(isset($_POST['cancel'])) {
@@ -26,7 +27,7 @@
 
     //on first connection extract the record
     $result = select_one_row($dbconnect, $table_name, $id);
-    if(mysqli_num_rows($result) == 1){
+    if (mysqli_num_rows($result) == 1) {
       $record_data = mysqli_fetch_array($result, MYSQLI_ASSOC);
     } else {
       echo '<h2>'.mysqli_error($dbconnect).'</h2>';
@@ -73,10 +74,10 @@
     else {
       if ($table_name == "users") {
         update_one_row($dbconnect, $table_name, $id, $edit_data);
-        report_query($dbconnect);
+        report_query($dbconnect, $edit_data);
         if (($orig_newsletter == "" && $newsletter == "on") ||
             ($orig_newsletter == "1" && $newsletter == "")) {
-          if ($newsletter == "on") {
+          if ($newsletter) {
             $sign_up_result = newsletter_sign_up($dbconnect, $email);
             if ($sign_up_result) {
               echo '<p>successfully signed up for a newsletter</p>';
@@ -85,24 +86,24 @@
             } else {
               echo '<p>Your email address is already receiving a newsletter</p>';
             }
-          }
-        } else {
-          $signed_out_result = remove_one_row($dbconnect, "newsletter", $_POST['orig_email']);
-          if ($signed_out_result) {
-            echo '<p>successfully signed out of a newsletter</p>';
           } else {
-            echo '<p>MySql Error: '.mysqli_error($dbconnect).'</p>';
+            $signed_out_result = remove_one_row($dbconnect, "newsletter", $_POST['orig_email']);
+            if ($signed_out_result) {
+              echo '<p>successfully signed out of a newsletter</p>';
+            } else {
+              echo '<p>MySql Error: '.mysqli_error($dbconnect).'</p>';
+            }
           }
         }
       }
       elseif ($table_name == "newsletter") {
         $id = "'".$id."'";
         $query_result = update_one_row($dbconnect, $table_name, $id, $edit_news);
-        report_query($dbconnect);
+        report_query($dbconnect, $edit_news);
       }
       elseif ($table_name === "holidays") {
         $result_insert = update_one_row($dbconnect, $table_name, $id, $edit_holid);
-        report_query($dbconnect);
+        report_query($dbconnect, $edit_holid);
       }
       close_script($dbconnect);
     }
@@ -117,7 +118,7 @@
 
     <?php
 
-      //display a table with form fields
+      //import functions and display a table with form fields
       if($_SERVER['REQUEST_METHOD'] == 'GET') {
         create_table_form($table_name, $pure_data, $current_type, $record_data);
       } else {

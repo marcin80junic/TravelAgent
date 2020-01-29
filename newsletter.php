@@ -1,4 +1,6 @@
-<?php
+<?php #newsletter.php
+
+  session_start();
 
   //title the page, include site's menu
   $page_title = "Sign up for a newsletter";
@@ -16,6 +18,7 @@
     } else {
       echo "<p>mail have not been sent, the mail server is off</p>";
     }
+  }
 
 
   //check if the form has been submitted

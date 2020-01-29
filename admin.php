@@ -1,5 +1,7 @@
 <?php #admin.php
 
+  session_start();
+
   //setting up page
   $page_title = "Admin Utility";
   include("templates/header.php");
@@ -21,6 +23,7 @@
     }
     echo '<input type="hidden" name="table_name" value="'.$name.'">';
     echo '<input type="hidden" name="display" value="10" id="'.$name.'_display">';
+    echo '<input type="hidden" name="start" value="0" id="'.$name.'_start">';
     echo '<input type="hidden" name="sort" value="" id="'.$name.'_sort">';
   }
 
