@@ -63,4 +63,4 @@
         </ul>
       </nav>
 
-      <div class="flex-grow-1 text-center p-5">
+      <div class="flex-grow-1 p-5">

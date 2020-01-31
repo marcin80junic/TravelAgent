@@ -92,26 +92,32 @@
     }
 
     if (isset($_FILES['image']) && empty($reg_errors) && empty($edit_errors)) {
-      $image_path = "../../../../xxuploads/{$_FILES['image']['name']}";
-      if (!file_exists($image_path) && !is_file($image_path)) {
-        if (move_uploaded_file($_FILES['image']['tmp_name'], $image_path)) {
-          $reg_holid[] = $edit_holid['image'] = mysqli_real_escape_string($dbconnect, $image_path);
-          if (isset($_POST['orig_image']) && !empty($_POST['orig_image'])) {
-            $orig_image_path = $_POST['orig_image'];
-            if ($orig_image_path !== $image_path) {
-              if (file_exists($orig_image_path) && is_file($orig_image_path)) {
-                unlink($_POST['orig_image']);
+      $image_path = "../../../../xxuploads/{$_FILES['image']['name']}"; //create destination path..
+      if (!file_exists($image_path) && !is_file($image_path)) { //..check if it exists already
+        $file_info = finfo_open(FILEINFO_MIME_TYPE);  //if not, create Fileinfo resource
+        if ( stripos(finfo_file($file_info, $_FILES['image']['tmp_name']), "image") === 0) { //check if file is an image
+          finfo_close($file_info);  //if yes, close the resource
+          if (move_uploaded_file($_FILES['image']['tmp_name'], $image_path)) { //copy the file to its destination
+            $reg_holid[] = $edit_holid['image'] = mysqli_real_escape_string($dbconnect, $image_path); //store its path
+            if (isset($_POST['orig_image']) && !empty($_POST['orig_image'])) {  //check if there was a previous image
+              $orig_image_path = $_POST['orig_image']; //if yes, assign it to variable
+              if ($orig_image_path !== $image_path) { //check if it got the same name as the new one
+                if (file_exists($orig_image_path) && is_file($orig_image_path)) { //if not, check if the old one exists..
+                  unlink($_POST['orig_image']); //..on disk and remove it
+                }
               }
             }
+          } else {
+            $reg_errors[] = $edit_errors[] = "image upload failed! Error: {$_FILES['image']['error']}";
           }
         } else {
-          $reg_errors[] = $edit_errors[] = "image upload failed! Error: {$_FILES['image']['error']}";
+          $reg_errors[] = $edit_errors[] = "this file is not an image!";
         }
       } else {
         $reg_errors[] = $edit_errors[] = "this file is already in the folder!";
       }
       if (file_exists($_FILES['image']['tmp_name']) && is_file($_FILES['image']['tmp_name'])) {
-        unlink($_FILES['image']['tmp_name']);
+        unlink($_FILES['image']['tmp_name']); //remove temporary file if it still exists
       }
     }
   }

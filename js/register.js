@@ -75,4 +75,4 @@
       $element.addClass("border border-danger");
     }
   }
-}())
+}());

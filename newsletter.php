@@ -68,12 +68,17 @@
 
 ?>
 
-<div class="text-center">
+<div class="text-center w-50 m-auto">
+  <div>
+    <h6 class="text-justify mb-4">Feel like you want to go somewhere but just can't see the offer which
+      hits the spot? You don't have to register an account, just sign up for our newsletter and you will be first
+      one to know about any last minute deals and exclusive offers!</h6>
+  </div>
   <form action="newsletter.php" method="post">
-    <fieldset class="w-75 mx-auto my-5 p-4 border border-primary rounded-lg">
-      <h3>Sign up for our newsletter</h3>
-      <h6 class="mt-3 mb-5">Make sure that you will not miss on any special offers!</h6>
-      <div class="input-group w-75 mx-auto">
+    <fieldset class="p-5 border border-primary rounded-lg">
+      <h3>Sign up for our newsletter!</h3>
+      <h6 class="mt-3 mb-5">Make sure that you will not miss on any special offers</h6>
+      <div class="input-group">
         <div class="input-group-prepend">
           <span class="input-group-text">email</span>
         </div>

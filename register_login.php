@@ -33,7 +33,7 @@
 
 <div class="text-center mt-5">
   <h5 class="mb-4">OR..</h5>
-  <a id="register" href="php/register.php" class="lead font-weight-bold">Register an account</a>
+  <a id="register" href="register.php" class="lead font-weight-bold">Register an account</a>
 </div>
 
 <?php
