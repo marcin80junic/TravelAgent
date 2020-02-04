@@ -1,6 +1,9 @@
 <?php #admin.php
 
   session_start();
+  if (!isset($_SESSION['agent'])) {
+    exit();
+  }
 
   //setting up page
   $page_title = "Admin Utility";

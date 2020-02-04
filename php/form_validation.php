@@ -176,11 +176,11 @@
 
     if ((!isset($id) || !empty($_POST['password'])) && isset($_POST['password'])) {
       if(!empty($_POST['password'])) {
-        $pass = mysqli_real_escape_string($dbconnect, trim($_POST['password']));
-        $reg_data[] = $pass;
+        $pass = $_POST['password'];
+        $reg_data[] = password_hash($pass, PASSWORD_DEFAULT);
         if (isset($_POST['orig_password'])) {
           if ($_POST['orig_password'] !== $pass) {
-            $edit_data['password'] = $pass;
+            $edit_data['password'] = password_hash($pass, PASSWORD_DEFAULT);
           }
         }
         if (strlen($pass) < 8) {
@@ -194,7 +194,7 @@
     if ((!isset($id) || !empty($_POST['password']) || !empty($_POST['confirm_password']))
           && isset($_POST['confirm_password'])) {
       if (!empty($_POST['confirm_password'])) {
-        $conf_pass = mysqli_real_escape_string($dbconnect, $_POST['confirm_password']);
+        $conf_pass = $_POST['confirm_password'];
         if ($conf_pass != $pass) {
           $edit_errors[] = $reg_errors[] = "password confirmation DOESN'T match!";
         }

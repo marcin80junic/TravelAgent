@@ -23,23 +23,32 @@
 
     if (empty($email)) {
       $errors[] = 'enter your email address or username please';
-    } else {
-      $email = mysqli_real_escape_string($dbc, trim($email));
+    } elseif($email !== "admin") {
+      if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $email = mysqli_real_escape_string($dbc, trim($email));
+      } else {
+        $errors[] = 'enter valid email address';
+      }
     }
 
     if (empty($pass)) {
       $errors[] = 'enter your password please';
     } else {
-      $pass = mysqli_real_escape_string($dbc, trim($pass));
+      $pass = trim($pass);
     }
 
     if (empty($errors)) {
-      $query = "SELECT * FROM users WHERE email='$email' AND password=SHA2('$pass', 512)";
+      $query = "SELECT * FROM users WHERE email='$email'";
       $result = mysqli_query($dbc, $query);
 
       if (mysqli_num_rows($result) == 1) {
         $row = mysqli_fetch_array($result, MYSQLI_ASSOC);
-        return [true, $row];
+        if (password_verify($pass, $row['password'])) {
+          unset($row['password']);
+          return [true, $row];
+        } else {
+          $errors[] = "incorrect login details!";
+        }
       } else {
         $errors[] = "incorrect login details!";
       }

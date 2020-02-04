@@ -63,15 +63,10 @@ $(function() {
         e.preventDefault();
         var getData = e.target.href? e.target.href: $(e.target).parent().prop("href");
         getData = getData.substring(getData.lastIndexOf("/")+1);
-        var sort = getData.substring(getData.indexOf("sort=")+5);
-        if (sort.indexOf("&") !== -1) {
-          sort = sort.substring(0, sort.indexOf("&"));
-        }
-        var start = getData.substring(getData.indexOf("start=")+6);
-        if (start.indexOf("&") !== -1) {
-          start = start.substring(0, start.indexOf("&"));
-        }
-        start = decodeURI(start);
+        //extract sort and start variables to store in hidden inputs
+        var sort = getData.match(/sort=(.*?)(?=&|$)/)[1];
+        var start = getData.match(/start=(\d*?)(?=&|$)/);
+        start = start? start[1]: 0;
         sort = decodeURI(sort);
         $("#"+tableName+"_sort").val(sort);
         $("#"+tableName+"_start").val(start);
@@ -87,14 +82,10 @@ $(function() {
       });
       //listener for select box changing number of rows per page
       $("#display").on("change", (e)=>{
-        var display = $("#display").val();
+        var display = "display=" + $("#display").val();
         $("#"+tableName+"_display").val(display);
         var getData = $("#href").val();
-        var temp = getData.substring(getData.indexOf("display=")+1);
-        var end = temp.substring(temp.indexOf("&"));
-        var start = getData.substring(0, getData.indexOf("display=")+8);
-        getData = start+display+end;
-  //      getData = getData.replace(/(?<=display\=)(.*?)(?=\&)/, display);
+        getData = getData.replace(/(display=)(\d*?)(?=&)/, display);
         $.get("php/admin_table.php", getData, function(data) {
           tablePostCallback(data, tableName);
         });

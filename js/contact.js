@@ -6,7 +6,6 @@
     var $comments = $("#comments");
 
     $("form").on("submit", (e)=>{
-    //  $.scrollTo('+=50px', 800, { axis:'y' });
       if ($subject.val() === "") {
         $subject.addClass("border border-danger");
         e.preventDefault();

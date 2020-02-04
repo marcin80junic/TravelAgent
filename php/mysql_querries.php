@@ -34,10 +34,6 @@
     $pk_name = _get_pk_column_name($dbc, $table);
     $query = "UPDATE $table SET ";
     foreach($data as $col => $val) {
-      if ($col === "password") {
-        $query .= "$col=SHA2('$val', 512), ";
-        continue;
-      }
       if ($col === "date_from" || $col === "date_to") {
         $query .= "$col=STR_TO_DATE('$val', '%d-%m-%Y'), ";
         continue;
@@ -57,7 +53,7 @@
   //users table specific functions
   function users_insert($dbc, $data) {
     $query = "INSERT INTO users(f_name, l_name, email, password, mobile, date_registered)
-              VALUES('$data[0]', '$data[1]', '$data[2]', SHA2('$data[3]', 512), '$data[4]', NOW())";
+              VALUES('$data[0]', '$data[1]', '$data[2]', '$data[3]', '$data[4]', NOW())";
     return @mysqli_query($dbc, $query);
   }
 
