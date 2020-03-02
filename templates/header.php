@@ -1,3 +1,8 @@
+<?php
+  ob_start();
+  session_start();
+?>
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -48,7 +53,7 @@
 
           <?php
             if (isset($_SESSION['agent']) && ($_SESSION['agent'] === sha1($_SERVER['HTTP_USER_AGENT']))) {
-              if (isset($_SESSION['email']) && ($_SESSION['email'] === "admin")) {
+              if (isset($_SESSION['user_level']) && ($_SESSION['user_level'] === "3")) {
                 echo '<li id="admin" class="nav-item px-2 py-1">
                         <a class="nav-link text-white" href="admin.php">admin</a>
                       </li>';

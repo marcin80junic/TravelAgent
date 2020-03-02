@@ -18,6 +18,12 @@
         $value = strtotime($value);
         $value = ($value < 0)? "": date("d-m-Y", $value);
       }
+      if ($column == "active") {
+        if ($orig_data) {
+          $orig_val = ($orig_val == NULL)? true: false;
+        }
+        $value = ($value == NULL)? true: false;
+      }
       if ($orig_data && $desc === "password") {
         $value = $orig_val = "";
       }
@@ -30,7 +36,7 @@
               <td class="right">
                 <input type="'.$inp_type.'" id="'.$column.'" name="'.$column.'" ';
                   if ($inp_type != "checkbox") echo ' value="'.$value.'"';
-                  if ($inp_type == "checkbox" && ($value === "1" || $value === "on")) echo 'checked="true"';
+                  if ($inp_type == "checkbox" && $value == "1") echo 'checked="true"';
       echo        '><input type="hidden" name="'.$orig_col.'" value="'.$orig_val.'">
               </td></tr>';
             if ($inp_type === "password") {
@@ -53,7 +59,7 @@
               </td>
               <td class="right">
                 <input type="checkbox" name="newsletter" id="newsletter" ';
-                if ($value == "1" || $value == "on" || $value == "true") echo 'checked="true"';
+                if ($value == "1") echo 'checked="true"';
                   echo  '></td>
             </tr>';
           $orig_news = $orig_data? $value: get_value("orig_newsletter", $orig_data);

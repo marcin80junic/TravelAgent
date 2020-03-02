@@ -3,7 +3,7 @@
   //declare variables
   $reg_errors = $edit_errors = [];
   $reg_data = $edit_data = $reg_news = $edit_news = $reg_holid = $edit_holid = [];
-  $email = $pass = "";
+  $username = $email = $pass = "";
   $email_unique = $privacy = false;
 
   //validate all form fields and record all errors
@@ -124,6 +124,21 @@
 
   elseif($table_name === "users" || $table_name === "newsletter") {
 
+    //create activation code
+    $reg_data[] = md5(uniqid(rand(), true));
+
+    if (isset($_POST['active'], $_POST['orig_active'])) {
+      if ($_POST['orig_active'] == false) {
+        if ($_POST['active'] == true) {
+          $edit_data['active'] = NULL;
+        }
+      } else {
+        if ($_POST['active'] == false) {
+          $edit_errors[] = "cannot unactivate users!";
+        }
+      }
+    }
+
     if (isset($_POST['f_name'])) {
       if(!empty($_POST['f_name'])) {
         $f_name = mysqli_real_escape_string($dbconnect, trim($_POST['f_name']));
@@ -157,7 +172,7 @@
         $email = mysqli_real_escape_string($dbconnect, trim($_POST['email']));
         $reg_data[] = $reg_news['email'] = $email;
         $table_name = isset($table_name)? $table_name: "users";
-        $email_unique = is_email_unique($dbconnect, $table_name, $email);
+        $email_unique = is_value_unique($dbconnect, $table_name, 'email', $email);
         if (!$email_unique) {
           $reg_errors[] = "this email address is already in our database!";
         }
@@ -171,6 +186,40 @@
         }
       } else {
         $edit_errors[] = $reg_errors[] = "fill in an email address please!";
+      }
+    }
+
+    if (isset($_POST['mobile'])) {
+      $mobile = mysqli_real_escape_string($dbconnect, trim($_POST['mobile']));
+      $reg_data[] = $mobile;
+      if ($mobile != "" && !is_numeric($mobile)) {
+        $edit_errors[] = $reg_errors[] = "mobile number must contain digits only (no spaces)!";
+      }
+      if (isset($_POST['orig_mobile'])) {
+        if ($_POST['orig_mobile'] !== $mobile) {
+          $edit_data['mobile'] = $mobile;
+        }
+      }
+    }
+
+    if (isset($_POST['user_name'])) {
+      if (!empty($_POST['user_name'])) {
+        $username = mysqli_real_escape_string($dbconnect, trim($_POST['user_name']));
+        $user_unique = is_value_unique($dbconnect, $table_name, 'user_name', $username);
+        if (!$user_unique) {
+          $reg_errors[] = "username is already in use";
+        } else {
+          $reg_data[] = $username;
+        }
+        if (isset($_POST['orig_user_name']) && $_POST['orig_user_name'] !== $username) {
+          if (!$user_unique) {
+            $edit_errors[] = "username is already in use";
+          } else {
+            $edit_data['user_name'] = $username;
+          }
+        }
+      } else {
+        $reg_errors[] = $edit_errors[] = "enter username please";
       }
     }
 
@@ -203,19 +252,6 @@
       }
     }
 
-    if (isset($_POST['mobile'])) {
-      $mobile = mysqli_real_escape_string($dbconnect, trim($_POST['mobile']));
-      $reg_data[] = $mobile;
-      if ($mobile != "" && !is_numeric($mobile)) {
-        $edit_errors[] = $reg_errors[] = "mobile number must contain digits only (no spaces)!";
-      }
-      if (isset($_POST['orig_mobile'])) {
-        if ($_POST['orig_mobile'] !== $mobile) {
-          $edit_data['mobile'] = $mobile;
-        }
-      }
-    }
-
     if (!isset($_POST['privacy'])) {
       $reg_errors[] = "You have to agree to the privacy policy!";
     }
@@ -224,9 +260,9 @@
       if ($value !== "email") {
         $reg_news[] = isset($_POST[$value])? true: false;
         if (isset($_POST["orig_$value"])) {
-          if ((isset($_POST[$value]) && $_POST["orig_$value"] === "0")
-              || (!isset($_POST[$value]) && $_POST["orig_$value"] === "1")) {
-                $edit_news[$value] = isset($_POST[$value])? true: false;
+          if (($_POST[$value] == true && $_POST["orig_$value"] == false)
+              || ($_POST[$value] == false && $_POST["orig_$value"] == true)) {
+                $edit_news[$value] = $_POST[$value];
           }
         }
       }

@@ -14,9 +14,9 @@
   }
 
   //set up the script
-  require("../../../../xxsecure/dbconnect.php");
-  require("admin_table_functions.php");
-  require("mysql_querries.php");
+  require("includes/config.inc.php");
+  require("includes/admin_table_functions.inc.php");
+  require(MYSQL);
   set_current_data($table_name);
 
   //if form has been submitted

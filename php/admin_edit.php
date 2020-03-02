@@ -1,9 +1,9 @@
-<?php #admin_edit.php
+<?php #php/admin_edit.php
 
   //import db connection and functions
-  require("../../../../xxsecure/dbconnect.php");
-  require("mysql_querries.php");
-  require("admin_table_functions.php");
+  require("includes/config.inc.php");
+  require(MYSQL);
+  require("includes/admin_table_functions.inc.php");
 
   //check if choice was to cancel and quit the script
   if(isset($_POST['cancel'])) {
@@ -36,7 +36,7 @@
     //check if user is signed up for newsletter
     if ($table_name === "users") {
       $email = $record_data['email'];
-      $check_newsletter = users_is_newsletter($dbconnect, $email);
+      $check_newsletter = users_is_signed_up_for_newsletter($dbconnect, $email);
       $orig_newsletter = (mysqli_num_rows($check_newsletter) == 1)? true: false;
       $record_data["newsletter"] = $orig_newsletter;
     }
@@ -57,13 +57,15 @@
 
     //extracting critical variables
     if($table_name === "users") {
-      $newsletter = isset($_POST['newsletter'])? true: false;
+      if (isset($_POST['newsletter'])) {
+        $newsletter = $_POST['newsletter'];
+      }
       $orig_newsletter = $_POST['orig_newsletter'];
     }
 
     //using form validation to extract and check submitted data
     //if errors discovered print them out
-    require("form_validation.php");
+    require("includes/form_validation.inc.php");
     if (!empty($edit_errors)) {
       foreach($edit_errors as $message) {
         echo '<p class="lead text-danger font-weight-bold">' . $message . '</p>';
@@ -75,7 +77,7 @@
       if ($table_name == "users") {
         update_one_row($dbconnect, $table_name, $id, $edit_data);
         report_query($dbconnect, $edit_data);
-        if (($orig_newsletter == "" && $newsletter == "on") ||
+        if (($orig_newsletter == "" && $newsletter == "1") ||
             ($orig_newsletter == "1" && $newsletter == "")) {
           if ($newsletter) {
             $sign_up_result = newsletter_sign_up($dbconnect, $email);
@@ -118,7 +120,7 @@
 
     <?php
 
-      //import functions and display a table with form fields
+      //use function to display a table with form fields
       if($_SERVER['REQUEST_METHOD'] == 'GET') {
         create_table_form($table_name, $pure_data, $current_type, $record_data);
       } else {

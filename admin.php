@@ -1,15 +1,16 @@
 <?php #admin.php
 
-  session_start();
-  if (!isset($_SESSION['agent'])) {
-    exit();
-  }
-
   //setting up page
   $page_title = "Admin Utility";
   include("templates/header.php");
   echo '<script src="js/admin.js"></script>';
-  require("php/mysql_querries.php");
+  require("php/includes/config.inc.php");
+
+  //make sure that current user has been granted administrative privilege
+  if (!isset($_SESSION['agent'], $_SESSION['user_level']) || ($_SESSION['user_level'] !== "3")) {
+    echo 'access forbidden';
+    exit();
+  }
 
   //generic helper function creating checkboxes for a table column choice form
   function create_form($data, $name) {
@@ -32,7 +33,6 @@
 
   //generic function creating layout for table forms with column choice
   function create_table_forms($tables_data) {
-
     foreach($tables_data as $table_name => $table_columns) {
       echo '<div class="flex-column m-1">
               <form action="php/admin_table.php" method="post">
@@ -73,5 +73,10 @@
 <div id="main-table" class="bg-info"></div>
 
 <div id="dialog-1" class="text-center pt-3"></div>
+<div id="dialog-2" class="text-center pt-3"></div>
 
-<?php include("templates/footer.html"); ?>
+<?php
+
+  include("templates/footer.html");
+
+?>

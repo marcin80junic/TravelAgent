@@ -13,8 +13,8 @@
     exit();
   }
 
-  require("../../../../xxsecure/dbconnect.php");
-  require("mysql_querries.php");
+  require("includes/config.inc.php");
+  require(MYSQL);
 
   //if deletion has been confirmed remove the record from db
   if($_SERVER['REQUEST_METHOD'] == 'POST') {

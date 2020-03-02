@@ -1,8 +1,8 @@
 <?php
 
   //set up a script
-  require("../../../../xxsecure/dbconnect.php");
-  require("mysql_querries.php");
+  require("includes/config.inc.php");
+  require(MYSQL);
 
   //declare and initialize critical variables
   $table_name = $display = $pages = $start = $sort = $get_query ="";
@@ -97,8 +97,11 @@
             } else {
               $value = "image doesn't exist";
             }
-
           }
+          elseif ($db_columns[$i] === "active") {
+            $value = ($value == NULL)? "Yes": "No";
+          }
+
           if ($db_columns[$i] != "password") {
             echo '<td align="right">'.$value.'</td>';
           }
@@ -113,9 +116,8 @@
       echo '</tbody></table></div>';
     }
 
-    //if couldn't retrieve records from database display error message
+    //if couldn't retrieve records from database exit the script
     else {
-      echo "<h6>MySQL Syntax Error</h6><br><p>".mysqli_error($dbconnect)."</p>";
       mysqli_close($dbconnect);
       exit();
     }

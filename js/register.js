@@ -4,26 +4,28 @@
     $lastName = $("[name='l_name']");
     $email = $("[name='email']");
     $password = $("[name='password']");
-    $passFeedback = $("#password_validation");
+    $passFeedback = $("<span> at least 8 characters</span>");
+    $("[for='password']").after($passFeedback);
     $confirmPassword = $("[name='confirm_password']");
-    $confirmPassFeedback = $("#confirm_password_validation");
+    $confirmPassFeedback = $("<span> must match the password</span>");
+    $("[for='confirm_password']").after($confirmPassFeedback);
     $privacy = $("[name='privacy']");
 
     $password.on('keyup', ()=>{
       var len = $password.val().length;
       if(len == 0) {
         $passFeedback.removeClass("text-danger text-success");
-        $passFeedback.text("(at least 8 characters)");
+        $passFeedback.text(" at least 8 characters");
       }
       else if(len < 8) {
         $passFeedback.removeClass("text-success");
         $passFeedback.addClass("text-danger");
-        $passFeedback.text("(another "+(8-len)+" characters left)");
+        $passFeedback.text(" another "+(8-len)+" characters left");
       }
       else {
         $passFeedback.removeClass("text-danger");
         $passFeedback.addClass("text-success");
-        $passFeedback.text("password valid");
+        $passFeedback.text(" password valid");
       }
       $confirmPassword.keyup();
     });
@@ -33,17 +35,17 @@
       var passwordConfirmation = $confirmPassword.val();
       if(passwordConfirmation === "") {
         $confirmPassFeedback.removeClass("text-danger text-success");
-        $confirmPassFeedback.text("(must match the password)");
+        $confirmPassFeedback.text(" must match the password");
       }
       else if (passwordConfirmation !== password) {
         $confirmPassFeedback.removeClass("text-success");
         $confirmPassFeedback.addClass("text-danger");
-        $confirmPassFeedback.text("(doesn't match the password!)");
+        $confirmPassFeedback.text(" doesn't match the password!");
       }
       else {
         $confirmPassFeedback.removeClass("text-danger");
         $confirmPassFeedback.addClass("text-success");
-        $confirmPassFeedback.text("match!");
+        $confirmPassFeedback.text(" match!");
       }
     });
 
